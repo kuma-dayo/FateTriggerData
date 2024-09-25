@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// DsGroup detail information
+message DsGroupDetail
+{
+    int32 DsGroupId = 1;                // DS Group id 战斗集群id，用于标识
+    string DsGroupName = 2;             // DS战斗集群名字
+    bool Open = 3;                      // 是否开放
+    string PingSvrUrl = 4;                 // ping url 地址
+    string Region = 5;                  // 区域
+    string Area = 6;                    // 国家或地区
+    repeated int64 GameplayIds = 7;     // 玩法模式ids
+    string ClientMatchConfigTableKey = 8;     // 匹配策略表名称,下发给客户端用
+}
+
+
+// 拉取Ds Group Ping svr 列表
+message PullDsGroupsReq
+{
+}
+
+message PullDsGroupsRsp 
+{
+    repeated DsGroupDetail DsGroups = 1;
+}
+
+// 上报ping值
+message ReportDsGroupPingReq 
+{
+    map<int32, int32> PingValues = 1;
+}
+
+
+// Response
+message ReportDsGroupPingRsp
+{
+}
+
+// 客户端选择战斗服同步请求
+message ReportDsGroupIdReq
+{
+    int32 DsGroupId = 1;  //  当前选择的战斗服集群id
+}
+
+
+// 客户端选择战斗服同步请求
+message ReportDsGroupIdRsp
+{
+    int32 DsGroupId = 1;  // 当前选择的战斗服集群id
+}

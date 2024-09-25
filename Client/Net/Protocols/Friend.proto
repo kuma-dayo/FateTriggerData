@@ -1,0 +1,250 @@
+syntax = "proto3";
+import "Lobby.proto";
+
+option go_package="./go;pb";
+package pb;
+
+// 通过玩家ID或者名称添加好友
+message AddFriendReq
+{
+    string PlayerData      = 1;         // 字符串，玩家名称或者角色Id
+    int64 AddType = 2;                  // 添加好友的途径模块
+}
+
+// 通过玩家ID请求添加好友返回结果
+message AddFriendRsp
+{
+    int64 PlayerId      = 1;    // 玩家角色ID
+}
+
+// 好友申请信息节点
+message AddFriendApplyNode
+{
+    int64 PlayerId      = 1;    // 申请加入好友的角色ID
+    string PlayerName   = 2;    // 申请加入好友的角色名字
+    int64 AddTime       = 3;    // 申请添加好友的时间戳
+    int64 HeadId        = 4;    // 头像ID
+}
+
+// 当有玩家申请加入好友，同步申请信息到客户端，增量
+message AddFriendApplyListSyn
+{
+    repeated AddFriendApplyNode AddFriendApplyList = 1;         // 好友申请列表
+}
+
+// 同意或者不同意请求加好友
+message AddFriendOperateReq
+{
+    int64 ReqPlayerId   = 1;    // 请求添加好友的角色ID
+    bool Choice         = 2;    // true同意添加好友，false不同意添加好友
+}
+
+// 同意或者不同意请求加好友返回结果（这里操作成功，需要清理一下客户端缓存好友申请列表节点）
+message AddFriendOperateRsp
+{
+    int64 ReqPlayerId   = 1;    // 请求添加好友的角色ID
+}
+
+// 请求好友列表，这个需要客户端主动拉取
+message FriendListReq
+{
+}
+
+// 单个好友信息节点
+message FriendBaseNode
+{
+    string  PlayerName  = 1;    // 好友名称
+    int64   PlayerId    = 2;    // 好友角色ID
+    PlayerState PlayerState = 3; //好友状态
+    int64   IntimacyValue= 4;   // 亲密度数值
+    bool    StarFlag = 5;       // true 设置星标 false 未设置星标
+    int64   PlayCount = 6;      // 游戏场次
+    int64   PlayTime = 7;       // 游戏时长，单位秒
+}
+
+message FriendBlackNode
+{
+    int64   PlayerId = 1;       // 黑名单角色Id
+    int64   OpTime = 2;         // 拉黑的时间戳
+}
+// 请求好友列表返回信息,包含好友列表，请求列表信息数据
+message FriendListRsp
+{
+    repeated FriendBaseNode FriendInfoList = 1;         // 好友信息列表
+    repeated AddFriendApplyNode AddFriendApplyList = 2; // 请求加好友的列表
+    repeated FriendBlackNode BlackList= 3;              // 黑名单
+}
+
+// 好友操作日志类型
+enum BASE_INFO_CHANGE_TYPE
+{
+    CHANGE_INVAILD      = 0;    // 其他变化逻辑
+    CHANGE_INTIMACY     = 1;    // 亲密度变化
+    CHANGE_STATUS       = 2;    // 状态变化
+    CHANGE_TEAM_DATA    = 3;    // 游戏时长和组队场次变化
+    CHANGE_ADD_FRIEND   = 4;    // 添加好友
+}
+
+// 好友基础数据变化列表（通过角色ID找到好友列表中对应的好友，覆盖节点信息）
+message FriendBaseInfoChangeSyn
+{
+    repeated FriendBaseNode  FriendInfoList = 1;    // 好友基础信息变化同步数据（新好友，新加;删除好友，删除;数据变化，覆盖）
+    BASE_INFO_CHANGE_TYPE ChangeType = 2;           // 根据类型更新好友的基础字段信息
+}
+
+// 请求删除好友
+message FriendDeleteReq
+{
+    int64 PlayerId = 1;  // 要删除好友的角色ID
+}
+
+// 请求删除好友信息返回结果（这里操作成功，需要清理一下客户端缓存好友列表节点）
+message FriendDeleteRsp
+{
+    int64 PlayerId = 1;  // 要删除好友的角色ID
+}
+
+// 通过角色名字或者角色Id，查询角色Id
+message FriendPlayerDataReq
+{
+    string PlayerData      = 1;    // 字符串，玩家名称或者角色Id
+}
+
+message FriendPlayerDataRsp
+{
+    int64 PlayerId = 1; // 0则角色不存在
+}
+
+// 请求设置好友星标操作(设置和取消)
+message FriendSetStarReq
+{
+    int64 TargetPlayerId = 1;   // 操作的PlayerId
+    bool StarFlag = 2;   // true 设置星标，false取消星标
+}
+
+// 请求设置好友星标返回
+message FriendSetStarRsp
+{
+    int64 TargetPlayerId = 1;   // 操作的PlayerId
+    bool StarFlag = 2;   // true 设置星标，false取消星标
+}
+
+// 操作某个玩家黑名单
+message FriendSetPlayerBlackReq
+{
+    int64 TargetPlayerId = 1;   // 操作的目标对象PlayerId
+    bool BlackFlag = 2;         // true 拉黑 false 移除黑名单
+    bool AddFriend = 3;         // 移除黑名单时，true添加好友，false不添加
+}
+
+// 操作某个玩家黑名单返回
+message FriendSetPlayerBlackRsp
+{
+    int64 TargetPlayerId = 1;   // 操作的目标对象PlayerId
+    bool BlackFlag = 2;         // true 拉黑 false 移除黑名单
+    bool AddFriend = 3;         // 移除黑名单时，true添加好友，false不添加
+}
+
+// 请求好友日志数据
+message FriendGetOpLogReq
+{
+    int64 TargetPlayerId = 1;         // 要请求那个好友的操作日志数据
+}
+
+// 好友操作日志类型
+enum FRIEND_OP_TYPE
+{
+    FRIEND_OP_INVAILD           = 0;    // 无效类型
+    FRIEND_OP_ADD_FRIEND        = 1;    // 添加好友
+    FRIEND_OP_INTIMACY_LEVEL    = 2;    // 亲密度等级提升
+    FRIEND_OP_TEAM_PLAY_RANK    = 3;    // 好友组队游戏排名
+    FRIEND_OP_TEAM_PLAY_TIME    = 4;    // 好友组队游戏时长
+    FRIEND_OP_TEAM_PLAY_GAME    = 5;    // 好友组队游戏场次
+}
+
+// 增加亲密度类型
+enum FRIEND_ADD_INTIMACY_TYPE
+{
+    FRIEND_ADD_INTIMACY_GM          = 0;    // Gm类型
+    FRIEND_ADD_INTIMACY_TEAM_PLAY   = 1;    // 组队玩游戏
+    FRIEND_ADD_INTIMACY_GIVE_ITEM   = 999;  // 送礼礼物
+}
+
+message FriendOpLogNode
+{
+    FRIEND_OP_TYPE OpType = 1;          // 操作类型
+    int64 OpTime = 2;                   // 触发时间，单位秒
+    string OpParam = 3;                 // 操作触发参数
+    // OpType=1 OpParam=1 途径添加的好友
+    // OpType=2 OpParam=20  参数是亲密度等级
+    // OpType=3 OpParam=GameMode;Rank;PlayerId  参数是亲密度等级
+    // OpType=4 OpParam=20  游戏时长，小时
+    // OpType=5 OpParam=20  游戏场次
+}
+// 请求好友日志数据返回，上线请求时全量
+message FriendGetOpLogRsp
+{
+    int64 TargetPlayerId = 1;                 // 要请求那个好友的操作日志数据
+    repeated FriendOpLogNode OpLogList = 2; // 操作日志列表
+}
+
+//获取好友共同游玩时长
+message PlayerTimeTogetherReq
+{
+    int64 TargetPlayerId = 1;         //查询的玩家Id        
+}
+message PlayerTimeTogetherRsp
+{
+    float TotalTime = 1;        //共同游玩时长
+    int64 TargetPlayerId = 2;   //查询的玩家Id
+}
+
+//最近30场共同游玩的好友
+message FriendsInRecentGamesReq
+{
+}
+message FriendsInRecentGamesRsp
+{
+    repeated int64 PlayerIdList = 1;        //最近30场共同游玩的好友的PlayerId数组
+}
+
+// 查询某些玩家的最晚在线时间
+message PlayerLookUpLastOnlineTimeReq 
+{
+    repeated int64 PlayerIdList = 1;        // 角色Id
+}
+message LastOnlineTimeNode
+{
+    int64 PlayerId = 1;
+    int64 LastOnlineTime = 2;
+}
+message PlayerLookUpLastOnlineTimeRsp 
+{
+    repeated LastOnlineTimeNode PlayerIdList = 1;        // 离线时间戳信息
+}
+
+// 给好友赠送物品增加亲密度
+message PlayerGiveFriendItemGiftReq
+{
+    int64 TargetPlayerId    = 1;            // 赠送的好友PlayerId
+    int64 ItemId            = 2;            // 赠送的物品Id
+    int64 ItemNum           = 3;            // 赠送的物品数量
+}
+message PlayerGiveFriendItemGiftRsp
+{
+    int64 TargetPlayerId    = 1;            // 赠送的好友PlayerId
+    int64 ItemId            = 2;            // 赠送的物品Id
+    int64 ItemNum           = 3;            // 赠送的物品数量
+}
+
+// 判断是否为好友
+message PlayerIsFriendReq
+{
+    int64 TargetPlayerId    = 1;            // 判断的目标PlayerId
+    repeated int64 PlayerIdList = 2;        // 要判断的PlayerId列表
+}
+message PlayerIsFriendRsp
+{
+    int64 TargetPlayerId    = 1;            // 和目标是否为好友
+    map<int64, int64> IsFriendMap  = 2;     // Key是PlayerId, value true是好友，false不是好友
+}

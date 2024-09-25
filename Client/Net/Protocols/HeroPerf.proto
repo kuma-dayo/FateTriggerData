@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+//英雄战力战绩请求
+message HeroPerfRecordsReq
+{
+    int32 SeasonId = 1;
+    int64 HeroId = 2;
+    int32 StartIdx = 3;          // 请求战绩起始位置
+}
+
+//每局英雄表现
+message HeroPerfRecord
+{
+    string GameId = 1;
+    int32 PowerScoreInc = 2;       // 英雄战力值变化
+    int32 Rank = 3;                // 当局排名
+    int32 PowerScore = 4;      // 当局英雄战力
+}
+message HeroPerfRecordsRsp
+{
+    int32 SeasonId = 1;
+    int64 HeroId = 2;
+    repeated HeroPerfRecord HeroPerfRecords = 3;
+    int32 StartIdx = 4;     // 请求战绩起始位置
+}
+
+//英雄数据统计请求
+message HeroBattleDataReq
+{
+    int32 SeasonId = 1;
+    int64 HeroId = 2;
+}
+
+message HeroBattleDataRsp
+{
+    int32 SeasonId = 1;
+    int64 HeroId = 2;
+    int32 RecordsNum = 3;       // 总对局数
+    int32 TotKill = 4;          // 总击杀
+    int32 TotRescue = 5;        // 总救援
+    int32 TotRespawn = 6;       // 总复活
+    int32 TotRank = 7;          // 总排名   
+    int32 TotSurvivalTime = 8;  // 总生存时间
+    int32 TotAssist = 9;       // 总助攻
+    int32 TotDamage = 10;    // 按一个赛季6个月最大伤害53,568,000
+    int32 Top5Num = 11;         // 前5数
+    int32 TotDeath = 12;        // 总死亡
+    int32 MaxKill = 13;
+    int32 MaxDamage = 14;
+    int32 PowerScore = 15;  // 英雄战力
+    int32 DivisionAvgHeroPowerScore = 16;       // 段位平均英雄战力
+    map<int32, int64> HeroSkillPerfs = 17;      // 英雄技能表现
+}

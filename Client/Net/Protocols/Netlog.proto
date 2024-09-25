@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+
+message NetlogFile
+{
+    string  name    = 1;
+    bytes   data    = 2;
+}
+
+message NetlogMsg
+{
+    int64               Stamp           = 1;    // 时间戳(毫秒)
+    string              LogLevel        = 2;    // 日志级别
+    bool                IsNotify        = 3;    // 是否上报QA平台
+    int32               Count           = 4;    // 增量次数
+
+    string              NodeType        = 11;   // 节点类型
+    string              IpAddress       = 12;   // 来源IP地址
+    uint32              ProcessId       = 13;   // 进程号
+    uint32              ThreadId        = 14;   // 线程号
+    uint64              ZoneId          = 15;   // 分区
+    string              GameId          = 16;   // 对局号
+    string              DslogUrl        = 17;   // DS日志链接
+    string              Platform        = 18;   // 系统平台
+    string              BuildInfo       = 19;   // 编译信息
+    string              Version         = 20;   // 版本号
+    string              Username        = 21;   // 用户名
+
+    string              Fileline        = 31;   // 源文件行号
+    string              ModName         = 33;   // 模块名
+    string              MsgContent      = 34;   // 日志内容
+    string              MsgMeta         = 35;   // 消息元数据，供上报方和QA做提单逻辑用
+
+    repeated NetlogFile attachment_list = 41;   // 付件列表
+}
+
+message NetlogRes
+{
+    string result = 1;
+}
+message NetlogHeartbeat
+{
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 根据玩家房间ID和模式，获取Token
+message GetRtcTokenReq
+{
+    int64 RoomId    = 1;    // 房间Id
+}
+
+message GetRtcTokenRsp
+{
+    int64 RoomId    = 1;    // 房间Id
+    string RtcToken = 2;    // 生成的RtcToken
+}

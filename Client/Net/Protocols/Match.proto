@@ -1,0 +1,149 @@
+﻿syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+
+// Team 元数据信息
+message Team
+{
+    repeated int32 Ratings = 1;
+    repeated int64 PlayerIds = 2;
+    bool NeedFill = 3;
+}
+
+// 请求匹配
+message MatchReq
+{
+    int32 DsGroupId = 1;    // 服务器ID
+    int64 MatchModeId = 2;  // 匹配模式Id
+    int64 PlayerId = 3;     // 玩家PlayerId，必填
+    int32 GameplayId = 4;   // 玩法Id
+    int32 LevelId = 5;      // 关卡Id
+    int32 View = 6;         // 视角
+    int32 TeamType = 7;     // 队伍类型
+    bool IsCrossPlatform = 8; // 是否跨平台匹配
+    bool NeedFill = 9;      // 是否需要补人，即填充队伍（当队伍数量不满时会补充路人）
+    bool IsTeamMatch = 10;  // 是否为组队匹配，组队匹配会直接发往组队服
+    int32 PlayModeId = 11;  // 玩法模式ID
+}
+
+ 
+// 请求匹配回复
+message MatchRsp
+{
+    bool Result = 1;
+    string Msg = 2;
+}
+
+// 请求取消匹配
+message MatchCancelReq
+{
+}
+
+
+// 请求取消匹配回复
+message MatchCancelRsp
+{
+    bool Result = 1;
+    string Msg = 2;
+}
+
+// 匹配关键参数
+message MatchParam
+{
+    int32 TeamSize = 1;
+    int64 TeamId = 2;
+    int32 BucketHeadIndex = 3;
+    int32 ModeGroupId = 4;
+    int32 RatingType = 5;
+    string GameId = 6;
+    repeated int64 PlayerIds = 7;
+
+}
+
+// 匹配结果通知，匹配成功/失败，
+message MatchResultSync
+{
+    bool Result = 1; // 匹配成功与否，true-成功，false-失败
+    string Msg = 2;  // 匹配失败信息，成功时不需要查看该参数
+    MatchParam MatchParam = 3;  // 匹配成功后的关键信息
+}
+
+// client 连接 Ds 的元数据信息
+message DsConnectMeta
+{
+    string GameId = 1; // GameId
+    string Ip = 2; // Ds Ip
+    int32 Port = 3; // Ds Port
+    string GameBranch = 4; // GameBranch 不知道具体用处
+    int64 PlayerId = 5; // 玩家PlayerId
+    bool bAsanDs = 6; //ds是否是Asan版
+
+    bytes EncryptKey       = 7; // 加密密钥
+    string ServerPublicKey  = 8; // 后台DH生成的公钥（根据ClientPubicKey）
+    string ServerKeyMD5     = 9; // DSKey的MD5值
+    int32 DsGroupId = 10;    // 战斗集群Id
+}
+
+// Ds开局来源
+enum DS_META_SRC
+{
+    MATCH_SVR = 0;          // 匹配
+    CUSTOM_ROOM_SVR = 1;    // 自建房
+}
+
+message DsMetaSync
+{
+    DsConnectMeta DsMeta    = 1;  // Ds 元数据信息，包含连接必需的IP:Port
+    DS_META_SRC DsMetaSrc   = 2;  // Ds开局来源（匹配、自建房）
+}
+
+//拉起Ds时广播GameId
+message MatchDsBaseInfoSync
+{
+    string GameId = 1;
+    map<string, string> DsIniInfo = 2;
+}
+
+// 客户端主动获取匹配/对局信息请求
+// 通过消息： MatchAndDsStateSync 回复
+message MatchAndDsStateReq 
+{
+}
+
+// 登录后匹配或对局信息同步
+message MatchAndDsStateSync 
+{
+    int32 MatchState = 1;       // 匹配状态 0: 未匹配; 1: 匹配中;  2: 匹配成功;
+    DsConnectMeta DsMeta = 2;   // 重连DsMeta 信息
+    DS_META_SRC DsMetaSrc = 3;  // Ds开局来源（匹配、自建房）
+}
+
+// 放弃重新进入/连接ds对局请求
+message GiveupReconnectDsReq
+{
+    string GameId = 1;
+}
+
+// 放弃重新进入/连接ds对局回复
+message GiveupReconnectDsRsp
+{
+    string Reason = 1; // 状态原因，如果失败，Reason != ""
+}
+
+// 玩家退出ds通知，主要防止卡流程
+message PlayerLogoutDs
+{
+    string GameId = 1; // GameId
+    string Reason = 2; // 退出原因
+}
+
+
+// 对局异常通知，主要包括启动ds后的异常通知下发，如Ds加载超时，崩溃等
+message GameExceptionSync
+{
+    string GameId = 1;                      // GameId
+    DS_META_SRC Source = 2;                 // 异常来源
+    int32 ErrorCode = 3;                    // 非0对应的错误码在ErrorCode配置表
+}

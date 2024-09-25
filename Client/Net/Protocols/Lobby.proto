@@ -1,0 +1,345 @@
+syntax = "proto3";
+import "Achievement.proto";
+import "Vehicle.proto";
+option go_package="./go;pb";
+package pb;
+
+// 玩家逻辑状态(服务器状态)
+enum PLAYER_STATE
+{
+    PLAYER_OFFLINE          = 0;    // 离线
+    PLAYER_LOGIN            = 1;    // 登陆中
+    PLAYER_LOBBY            = 2;    // 大厅中
+    PLAYER_TEAM             = 3;    // 组队中
+    PLAYER_CUSTOMROOM       = 4;    // 自建房中
+    PLAYER_MATCH            = 5;    // 匹配中
+    PLAYER_BATTLE           = 6;    // 战斗中
+    PLAYER_SETTLE           = 7;    // 结算中
+}
+
+// 组队推荐来源标识
+enum RECOMMEND_TEAM_SOURCE
+{
+    RECOMMEND_INIT                  = 0;    // 一般推荐
+    RECOMMEND_RECENT_PLAYED         = 1;    // 最近共同游玩
+}
+
+enum PLAYER_ADD_EXPENRICE_REASON
+{
+    PLAYER_ADD_EXPENRICE_REASON_USEITEM = 0;        // 使用道具
+    PLAYER_ADD_EXPENRICE_REASON_PALYGAME = 1;       // 打游戏
+}
+
+message PlayerState
+{
+    PLAYER_STATE        Status          = 1;    // 当前逻辑状态(服务器状态)
+    map<string,string>  DetailStatus    = 2;    // 逻辑状态详细信息(如:场景/模式/战斗开始时间/剩余人数)
+    string              DisplayStatus   = 3;    // 当前显示状态(客户端状态，服务器透传)
+}
+
+message RandomNameReq
+{
+    string LangType = 1;
+}
+message RandomNameRsp
+{
+    string Name = 1;    // 返回随机名
+}
+message CheckNameReq
+{
+    string Name = 1;
+}
+message CheckNameRsp
+{
+    string  Name    = 1;
+    int32   ErrCode = 2;   // 改名结果
+}
+message ModifyNameReq
+{
+    string Name = 1;
+}
+message ModifyNameRsp
+{
+    string  Name    = 1;
+    int32   ErrCode = 2;   // 改名结果
+}
+
+message PlayerBaseReq
+{
+}
+message PlayerBaseMsg
+{
+    int64   ID                  = 1;
+    string  Name                = 2;
+    int32   Level               = 3;
+    int32   Experience          = 4;
+    string  PortraitUrl         = 5;
+    string  AuditPortraitUrl    = 6;    // 审核中的头像地址
+    int64   HeadId              = 7;
+    int64   HeadFrameId         = 8;
+    bool    SelectPortraitUrl   = 9;    // true选择自定义头像PortraitUrl，false使用HeadId
+    int64   CreateTime          = 10;   // 创角时间
+}
+message PlayerBaseSync
+{
+    PlayerBaseMsg   BaseData    = 1;
+}
+
+message PlayerInfoSync
+{
+    int64 PlayerId                               = 1;
+    repeated AchievementInfoNode AchievementInfo = 3;    // 已解锁的成就信息，数组
+    map<int32, AchievementSlotInfoBase> SlotMap  = 4;    // 玩家装配的成就徽章信息
+}
+
+// 玩家特殊等级数据
+message PlayerAdvanceLevelData
+{
+    int32 TaskId = 1;       // 任务Id
+    int32 DropId = 2;       // 掉落Id
+    bool Finish = 3;        // 完成状态
+    bool State = 4;         // 领取状态
+}
+
+message PlayerLevelReq
+{
+}
+message PlayerLevelUpSyc
+{
+    int32 Level=1;
+    int32 Experience=2;
+    map<int32, PlayerAdvanceLevelData> AdvanceLevelData = 3;
+}
+
+message PlayerReceiveLevelRewardReq
+{
+    int32 Level = 1;                // 领取奖励等级
+}
+
+message PlayerReceiveLevelRewardRsp
+{
+    int32 Level = 1;                // 领取奖励等级
+    map<int32, PlayerAdvanceLevelData> AdvanceLevelData = 2;
+}
+
+// 全量同步各个系统的加成数据
+message PlayerSysCofSync
+{
+    map<int64, int64> ExpMap = 1;      // 经验加成数据，Key是加成的系数,1000是基数，Value是该加成的次数
+    map<int64, int64> GoldMap = 2;     // 金币加成数据，Key是加成的系数,1000是基数，Value是该加成的次数
+}
+
+message HeroInfoReq
+{
+}
+
+message WeaponSkinNode
+{
+    int64 WeaponId = 1;         // 武器Id
+    int64 WeaponSkinId = 2;     // 该武器选择的皮肤Id
+}
+message HeroSkinNode
+{
+    int64 HeroId = 1;           // 英雄Id
+    int64 HeroSkinId = 2;       // 英雄皮肤Id
+    map<int64, int64> ColorSuitSelectMap = 3;    // 炫彩套装皮肤上次选择的皮肤Id，Key是套装Id，Value是皮肤Id
+}
+message VehicleSkinNode
+{
+    int64 VehicleId = 1;        // 载具Id
+    int64 VehicleSkinId = 2;    // 皮肤Id
+    string LicensePlate = 3;    // 载具车牌号
+    int64 LotteryCount = 4;     // 摇号的次数，nil首次免费使用，其他数值是摇号次数
+}
+
+message PlayerMiscData
+{
+    int64 LikeTotal             = 1;    // 点赞数量
+    repeated int64 TagIdList    = 2;    // 个人标签列表
+    map<int64, int64> UnlockTagMap = 3; // 已经解锁的标签列表，Key是标签TagId,Value是该标签解锁的时间戳
+    string Personal = 4; // 个性签名
+}
+
+message SkinSuitInfo
+{
+    map<int32, int64>  SkinSuit = 1;    // key是部件位置，value是皮肤部件Id,如果没有该位置的皮肤部件，使用默认的部件皮肤Id
+    int64 SelectSkinId = 2;             // 当前套装选中的皮肤Id，如果是0则使用的自定义套装部件数据，0时用SkinSuit数据，非0取默认部件数据
+}
+
+message VehicleStickSkinData
+{
+    repeated StickerDataNode StickDataList = 1;         // 载具皮肤的贴纸列表
+}
+message HeroInfoSync
+{
+    int64               SelectHeroId            = 1;    // 选择的英雄Id
+    int64               SelectWeaponId          = 2;    // 选择武器的Id
+    int64               SelectVehicleId         = 3;    // 选择的载具Id
+    repeated WeaponSkinNode WeaponSkinList      = 4;    // 每个武器选择的皮肤列表
+    repeated HeroSkinNode HeroSkinList          = 5;    // 每个英雄选择的皮肤列表
+    repeated VehicleSkinNode VehicleSkinList    = 6;    // 每个载具选择的皮肤列表
+    PlayerMiscData      MiscData                = 7;    // 杂项的一些数据
+    map<int32, SkinSuitInfo> SkinSuitMap        = 8;    // 皮肤套装Id装备的部件信息，通过英雄装备的皮肤附带的套装Id来索引
+    map<int64, VehicleStickSkinData> VehiclSkinStickMap=9;   // key是载具的皮肤Id,value是载具的贴纸列表         
+}
+
+message PlayerDataBeginSync
+{    
+    int64 ServerTimestamp  = 1; // 服务器逻辑时间戳
+    int64 OtherDayOffset   = 2;  // 服务器跨天刷新的时间偏移值，单位秒
+    int32 SeasonId         = 3; // 玩家当前赛季Id
+    int32 ZoneId           = 4; // 服务器的ZoneId
+}
+
+message PlayerDataCompleteSync
+{
+}
+
+// 设置客户端显示状态
+message SetPlayerDisplayStatusReq{
+    string DisplayStatus = 1; // 显示状态
+}
+message SetPlayerDisplayStatusRsp{
+}
+message QueryPlayerStatusReq{
+}
+message QueryPlayerStatusRsp{
+    PlayerState Status   = 1;    // 当前状态
+}
+
+// 查询多个玩家状态接口请求
+message QueryMultiPlayerStatusReq
+{
+    repeated int64 PlayerList = 1;    // 玩家PlayerId列表，上限50个
+}
+// 查询多个玩家状态接口回包
+message QueryMultiPlayerStatusRsp
+{
+   map<int64, PlayerState> StatusInfoList = 1;    // 玩家PlayerId列表的状态
+}
+
+// 玩家主动退出游戏对局请求
+message PlayerExitDSReq
+{
+    string Reason         = 1;
+}
+
+// 玩家主动退出游戏对局响应
+message PlayerExitDSRsp
+{
+}
+
+// 拉取排行榜数据:通过起始排名和结束排名控制一次拉取的排行榜长度
+message RankReq{
+    int32   RankId      = 1;    // 榜单ID
+    //int32   Location    = 2;    // 保留，后期可能用来做位置信息
+    int32   RankStart   = 3;    // 起始排名
+    int32   RankStop    = 4;    // 结束排名
+}
+message RankInfo{
+    int64  Key      = 1;    // 参与排名的条目Key：玩家ID/战队ID/公会ID
+    int32  Rank     = 2;    // 排名
+    int32  Score    = 3;    // 分数/值
+}
+message RankRsp{
+    int32               RankId      = 1;    // 榜单名
+    //int32               Location    = 2;    // 保留，后期可能用来做位置信息
+    string              ResMsg      = 3;    // 返回信息，成功为ok
+    repeated RankInfo   RankList    = 4;    // 排行榜数据
+}
+
+// 获取玩家所有拥有的皮肤数量
+message PlayerGetAllSkinNumReq
+{
+
+}
+
+message PlayerGetAllSkinNumRsp
+{
+    int64 SkinNum = 1;      // 皮肤数量
+}
+
+enum TAG_UNLOCK_TYPE
+{
+    TAG_UNLOCK_TYPE_INVAILD  = 0;   // 无效类型
+    TAG_UNLOCK_TYPE_DAN = 1;        // 段位条件解锁
+}
+
+// 更新个人标签
+message PlayerUpdateTagReq
+{
+    repeated int64 TagIdList = 1;       // 要更新的个人标签Id列表
+}
+message PlayerUpdateTagRsp
+{
+    repeated int64 TagIdList = 1;       // 要更新的个人标签Id列表
+}
+
+// 通知解锁个性标签信息，增量更新，游戏中新解锁的标签信息
+message PlayerUnlockTagNotify
+{
+    map<int64, int64> UnlockTagMap = 1; // 解锁的标签列表，Key是标签TagId,Value是该标签解锁的时间戳
+}
+
+// 请求上传头像
+message UploadPortraitReq{
+    bytes   Data    = 1;    // 头像内容
+    string  Fmt     = 2;    // 头像格式: png/jepg...
+    int32   ActType = 3;    // 透传客户端字段
+}
+message UploadPortraitSync{
+    int32  ErrCode          = 1;
+    string PortraitUrl      = 2;    // 头像地址
+    string AuditPortraitUrl = 3;    // 审核中的头像地址
+    int32  ActType          = 4;    // 透传客户端字段
+}
+
+// 赛季变化同步
+message SeasonChangeSync
+{
+    int32 SeasonId = 1;
+}
+
+// 反外挂透传,客户端->服务器
+message AcePackageC2sReq{
+    bytes PackData = 1;
+}
+// 反外挂透传,服务器->客户端
+message AcePackageS2cSync{
+    bytes PackData = 1;
+}
+
+// 客户端热更新通知
+message ClientUpdateSync{
+    string  ClientVersion  = 1;
+    string  ActType         = 2;
+}
+
+// 获取创建可用的头像id
+message GetHeadIdListReq
+{
+
+}
+message GetHeadIdListRsp
+{
+    repeated int64 HeadIdList = 1;    // 创建角色可用头像Id列表
+}
+
+// 通用的跨天通知协议
+message CommonDayRefreshSync
+{
+
+}
+
+// 请求某个语言类型的文本Id对应的字符串
+message GetTextIdMultiLanguageContentReq
+{
+    int64 TextId = 1;               // 文本Id
+    string LanguageType  = 2;       // 语言类型
+}
+message GetTextIdMultiLanguageContentRsp
+{
+    int64 TextId = 1;               // 文本Id
+    string LanguageType  = 2;       // 语言类型
+    string Content = 3;             // 改文本Id对应的语言字符串
+}

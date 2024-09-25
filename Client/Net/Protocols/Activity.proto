@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+import "Item.proto";
+
+option go_package="./go;pb";
+package pb;
+
+message NoticeInfoBase
+{
+    int64 NoticeId = 1;
+    int64 NoticeTitleTextId = 2;        // 标题文本Id
+    int64 NoticeContentTextId = 3;      // 内容文本Id
+    int32 TopTab = 4;                   // 顶部页签
+    int32 Priority = 5;                 // 显示优先级
+}
+// 非IdIp公告没有NoticeId以外字段
+// 已开放公告同步
+message NoticeListSync
+{
+    repeated NoticeInfoBase NoticeList = 1;    // 公告列表
+}
+
+// 活动配置的基础信息
+message ActivityCfgNode
+{
+    int64 ActivityId = 1;               // 活动Id
+    int64 StartTime = 2;                // 开始时间，0为不校验开始时间
+    int64 EndTime = 3;                  // 结束时间，0为不检验结束时间
+    int64 ActivityType = 4;             // 活动类型
+    repeated int64 RedDotRule = 5;      // 红点触发规则
+    repeated int64 SubItemList = 6;     // 子项Id列表
+    int64 PageType = 7;                 // 活动所属页签
+    int64 SortWeight = 8;               // 排序
+    string BigPictureUrl = 9;           // 活动大图地址
+    int64 BottomType = 10;              // 沉底逻辑
+    int64 MinLevel = 11;                // 可见等级下限
+    int64 MaxLevel = 12;                // 可见等级上限
+    int64 LowVersion = 13;              // 客户端最低可见版本
+    string Param = 14;                  // 附加参数
+    string Label = 15;                  // 活动页签标题
+    string Title = 16;                  // 活动主标题
+    string SubTitle = 17;               // 活动副标题
+    string Help = 18;                   // 活动规则
+    repeated int64 CurrencyShow = 19;   // 货币显示，数组
+    int64 BannerId = 20;                // 宣传图Id
+    repeated int64 ActivityEntry = 21;  // 活动入口
+}
+
+// 主动推送活动的开启列表，增量
+message OpenActivityListSync
+{
+    repeated int64 ActivityIdList = 1;  // 开启的活动列表Id
+}
+
+// 关闭的活动Id列表
+message CloseActivityListSync
+{
+    repeated int64 ActivityIdList = 1;  // 关闭的活动Id列表
+}
+
+message ActivitySubItemCfgNode
+{
+    int64 SubItemId = 1;                    // 子项Id
+    int64 SubType = 2;                      // 类型
+    int64 TaskId = 3;                       // 任务Id
+    bool DayCircle = 4;                     // 是否日循环 true日循环
+    string Param = 5;                       // 附加参数
+    string PrizeCondition = 6;              // 奖励条件
+    repeated PrizeItemNode PrizeList = 7;   // 奖励列表
+}
+
+// 请求子项Id列表的信息
+message ActivityGetSubItemCfgReq
+{
+    repeated int64 SubItemIdList = 1;       // 子项Id列表
+}
+message ActivityGetSubItemCfgRsp
+{
+    repeated ActivitySubItemCfgNode ActivitySubItemCfgList = 1;  // 活动子项Id的详细信息
+}
+
+// 获取宣传图的基本配置信息
+message ActivityGetBannerCfgReq
+{
+    repeated int64 BannerIdList = 1;        // 宣传图Id列表
+}
+message ActivityBannerCfgNode
+{
+    int64 EntryId = 2;                      // 活动入口
+    string BannerImg = 3;                   // 大厅宣传图
+    int64 BannerTextId = 4;                 // 大厅宣传语Id
+    int64 ShowType = 5;                     // 宣传图触发
+    int64 DismissType = 6;                  // 宣传图消除
+    int64 StartTime = 7;                    // 开始时间
+    int64 EndTime = 8;                      // 结束时间
+    int64 ApplySys = 9;                     // 应用系统
+}
+message ActivityGetBannerCfgRsp
+{
+    repeated ActivityBannerCfgNode BannerCfgList = 1;        // 宣传图Id列表
+}
+
+// 活动类型
+enum ACTIVITY_TYPE
+{
+    ACTIVITY_TYPE_INVAILD = 0;              // 无效
+    ACTIVITY_TYPE_THREE_LOGIN = 1;          // 三日登录
+    ACTIVITY_TYPE_WEEK_LOGIN = 2;           // 7日登录周循环和非循环
+    ACTIVITY_TYPE_ATTATION = 3;             // 关注类活动，比如分享等
+    ACTIVITY_TYPE_SINGLE_TASK = 4;          // 单任务大图活动
+    ACTIVITY_TYPE_DAY_TASK = 5;             // 每日活动任务
+    ACTIVITY_TYPE_TASK = 6;                 // 任务
+    ACTIVITY_TYPE_EXCHANGE = 7;             // 兑换任务
+    ACTIVITY_TYPE_MULTI_JUMP = 8;           // 双跳大图活动
+}
+
+// 活动子项类型
+enum ACTIVITY_SUB_ITEM_TYPE
+{
+    ACTIVITY_SUB_ITEM_TYPE_INVAILD = 0;     // 无效
+    ACTIVITY_SUB_ITEM_TYPE_TASK = 1;        // 活动子项任务类型
+    ACTIVITY_SUB_ITEM_TYPE_ACTIVITY = 2;    // 活动子项活跃度类型
+    ACTIVITY_SUB_ITEM_TYPE_SHARE = 3;       // 活动子项分享类型
+    ACTIVITY_SUB_ITEM_TYPE_TEXT = 4;        // 活动子项文本类型
+}
+
+// 活动子项奖励状态
+enum ACTIVITY_SUB_ITEM_PRIZE_STATE
+{
+    ACTIVITY_SUB_ITEM_PRIZE_STATE_INVAILD = 0;      // 0或者nil就标识未完成
+    ACTIVITY_SUB_ITEM_PRIZE_STATE_FINISH = 1;       // 子项已经完成，可以领取奖励
+    ACTIVITY_SUB_ITEM_PRIZE_STATE_PRIZE = 2;        // 子项已经完成，并且领取奖励
+}
+
+// 活动红点触发类型
+enum ACTIVITY_REDDOT_TYPE
+{
+    ACTIVITY_REDDOT_TYPE_INVAILD = 0;       // 无效
+    ACTIVITY_REDDOT_TYPE_DAY = 1;           // 每日刷新红点
+    ACTIVITY_REDDOT_TYPE_FIRST = 2;         // 首次
+    ACTIVITY_REDDOT_TYPE_SUBITEM = 3;       // 子项有奖励红点
+}
+
+// 领取奖励，达成条件，才能领取奖励成功
+message ActivityGetPrizeReq
+{
+    int64 ActivityId = 1;                   // 活动Id
+    repeated int64 SubItemIdList = 2;       // 子项Id
+}
+message ActivityGetPrizeRsp
+{
+    int64 ActivityId = 1;                   // 活动Id
+    repeated int64 SubItemIdList = 2;       // 子项Id,返回领奖成功的子项Id列表,领取奖励成功，记得更新子项奖励状态为ACTIVITY_SUB_ITEM_PRIZE_STATE_PRIZE
+}
+
+// 获取某个活动的玩家领奖数据
+message PlayerGetActivityDataReq
+{
+    int64 ActivityId = 1;                   // 活动Id
+}
+message SubItemNode
+{
+    ACTIVITY_SUB_ITEM_PRIZE_STATE State = 1; // 子项状态
+}
+message PlayerGetActivityDataRsp
+{
+    int64 ActivityId = 1;                   // 活动Id
+    map<int64, SubItemNode> SubItemMap = 2; // Key子项Id,Value子项的状态
+}
+
+// 设置活动子项的领奖状态，目前只有关注类活动才可以调用该接口
+message PlayerSetActivitySubItemPrizeStateReq
+{
+    int64 ActivityId = 1;                   // 活动Id
+    int64 SubItemId = 2;                    // 子项Id
+}
+message PlayerSetActivitySubItemPrizeStateRsp
+{
+    int64 ActivityId = 1;                   // 活动Id
+    int64 SubItemId = 2;                    // 子项Id
+}

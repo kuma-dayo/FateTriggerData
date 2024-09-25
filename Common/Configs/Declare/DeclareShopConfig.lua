@@ -1,0 +1,31 @@
+--ShopConfig.xlsx
+Cfg_ShopConfig = "ShopConfig"
+G_CfgName2MainKey = G_CfgName2MainKey or {}
+G_CfgName2MainKey[Cfg_ShopConfig] = "GoodsId"
+Cfg_ShopConfig_P_MainKey = "GoodsId"
+Cfg_ShopConfig_P = {
+    GoodsId = "GoodsId",
+    PageList = "PageList",
+    IsShowInPage = "IsShowInPage",
+    IsSingleCanBuy = "IsSingleCanBuy",
+    Name = "Name",
+    Quality = "Quality",
+    Icon = "Icon",
+    SpecialMarkIcon = "SpecialMarkIcon",
+    SpecialMarkText = "SpecialMarkText",
+    SceneModelSkinID = "SceneModelSkinID",
+    SceneModelIcon = "SceneModelIcon",
+    GridType = "GridType",
+    Prority = "Prority",
+    CurrencyType = "CurrencyType",
+    Price = "Price",
+    ItemId = "ItemId",
+    ItemNum = "ItemNum",
+    PackGoodsIdList = "PackGoodsIdList",
+    PackGoodsIdPriceList = "PackGoodsIdPriceList",
+    KeyMarkList = "KeyMarkList",
+    IsOpenFullDetail = "IsOpenFullDetail",
+    GoodsBuffId = "GoodsBuffId",
+    EventName = "EventName",
+    LinkPackGoods = "LinkPackGoods",
+}

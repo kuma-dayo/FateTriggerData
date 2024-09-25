@@ -1,0 +1,180 @@
+syntax = "proto3";
+import "Head.proto";
+import "Weapon.proto";
+import "DisplayBoard.proto";
+import "Achievement.proto";
+
+option go_package="./go;pb";
+package pb;
+
+// 给某个玩家点热度值
+message PlayerLikeHeartReq
+{
+    int64 TargetPlayerId = 1;           // 目标对象
+}
+message PlayerLikeHeartRsp
+{
+    int64 TargetPlayerId = 1;           // 目标对象
+}
+
+// 对局结束，给某个队友玩家点赞
+message PlayerLikeReq
+{
+    int64 TargetPlayerId = 1;           // 目标对象
+    string GameId = 2;                  // 对局游戏Id
+}
+message PlayerLikeRsp
+{
+    int64 TargetPlayerId = 1;           // 目标对象
+    string GameId = 2;                  // 对局游戏Id
+}
+
+// 请求某个玩家的个人详细信息
+message PlayerLookUpDetailReq
+{
+    int64 TargetPlayerId = 1;           // 0查看自己，其他则是查看目标的PlayerId
+}
+
+message RecentVisitorNode
+{
+    int64 PlayerId = 1;                 // 访问者PlayerId
+    int64 VisitorTime = 2;              // 访问时间
+}
+message ShowHeroNode
+{
+    int32   Slot = 1;                   // 展示的位置
+    int64   HeroId = 2;                 // 展示的英雄Id
+    int64   HeroSkinId = 3;             // 展示的英雄皮肤Id
+}
+
+// 最高段位信息
+message MaxDivisionNode
+{
+    int32 MaxDivisionId = 1; // 最高段位
+    int32 WinPoint = 2;     // 胜点
+    int32 PlayModeId = 3; // 模式ID
+}
+message RankStatisticsBase
+{
+    int32 RecordsNum = 1;   // 场次
+    int32 Top5Num = 2;      // 前5数
+    int32 TotKill = 3;      // 总击杀
+}
+message PlayerDetailData
+{
+    int64   PlayerId        = 1;
+    string  PlayerName      = 2;
+    int32   Level           = 3;
+    int64   HeadId          = 4;                // 自定义头像CustomHeadUrl，不为空优该头像，为空时，则使用此字段的值
+    int64   HeadFrameId     = 5;                // 选择的头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 6; // 头像框挂件数据
+    int64   LikeHeartTotal  = 7;                // 点赞热度值
+    int64   LikeTotal       = 8;                // 点赞数量
+    repeated RecentVisitorNode RecentVisitorList = 9;       // 访问列表
+    repeated ShowHeroNode ShowHeroList = 10;    // 展示英雄列表
+    WeaponPartNode WeaponPart = 11;             // 选择的武器装备的配件信息
+    WeaponPartSkinNode WeaponPartSkin = 12;     // 选择武器皮肤装备的配件皮肤信息
+    int64   Experience      = 14;               // 当前经验值
+    map<int64, LbDisplayBoardInfo> DisplayBoardMap = 15;    // 不同角色的展示板数据
+    map<int32, AchievementSlotInfoBase> SlotMap = 16;       // 玩家装配的成就徽章信息
+    repeated int64 TagIdList     = 17;          // 个人标签列表
+    string PortraitUrl = 18;                    // 自定义头像Url
+    string Personal = 19; // 个性签名
+    bool SelectPortraitUrl = 20;                 // true选择自定义头像，PortraitUrl，false没有使用,用HeadId
+
+    repeated MaxDivisionNode MaxDivisionInfoList = 21; // 最高段位信息 
+    RankStatisticsBase RankStatistics = 22;     // 战斗统计数据（Rank）
+}
+message PlayerLookUpDetailRsp
+{
+    int64 TargetPlayerId = 1;           // 0查看自己，其他则是查看目标的PlayerId
+    PlayerDetailData DetailData = 2;    // 个人的详细信息
+}
+
+// 请求举报某个玩家
+message PlayerReportInfoReq
+{
+    int32 ReportType = 1;                   // 举报选项对应的安全分类。举报选项与映射的安全分类由BP提供
+    repeated int32 ReportLabelList = 2;     // 举报选项对应的安全详细标签，根据不同的安全分类代表不同意思
+    string ReportDetail = 3;                // 举报事件的详细信息,"json的详细格式见下列举报事件参数，详见下文不同场景的不同选项有不同的数据要求"
+    string ReportText = 4;                  // 举报人在举报中提供的描述信息
+    string ReportPicture = 5;               // 举报人在举报中提供的图片信息。用分号(;)分隔多个url
+    string ReportVideo = 6;                 // 举报人在举报中提供的视频信息。用分号(;)分隔多个url
+    int64 RePlayerId = 7;                   // 被举报用户角色id
+    string Scene = 8;                       // 举报事件所在的玩法类型
+    string SubScene = 9;                    // 举报事件的具体玩法
+    string Extra = 10;                      // 附加信息
+}
+
+message PlayerReportInfoRsp
+{
+    int64 RePlayerId = 1;                 // 被举报用户角色id
+}
+
+// 设置个性签名
+message SetPersonalReq{
+    string Personal = 1; 
+}
+message SetPersonalRsp{
+    int32  ErrCode          = 1;
+    string Personal         = 2;    // 个性签名
+}
+
+
+// 获取批量玩家的简单数据
+message GetPlayerDetailInfoReq
+{
+    repeated int64 PlayerIdList = 1;    // 玩家PlayerId列表
+}
+
+message PlayerDetailInfo
+{
+    int64 PlayerId = 1;
+    int64 HeadId    = 2;        // 头像Id
+    string PlayerName = 3;      // 角色名字
+    int64 HeadFrameId = 4;      // 头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 5;     // 头像挂件列表
+    string PortraitUrl      = 6;   // 自定义头像Url
+    bool SelectPortraitUrl = 7;     // true选择自定义头像PortraitUrl，false使用HeadId
+    repeated MaxDivisionNode MaxDivisionInfoList = 8; // 玩家最高段位信息
+}
+message GetPlayerDetailInfoRsp
+{
+    repeated PlayerDetailInfo DetailInfoList = 1;    // 玩家简要信息列表
+}
+
+// 获取批量玩家的交互弹窗数据
+message GetPlayerCommonDialogDataReq
+{
+    repeated int64 PlayerIdList = 1;    // 玩家PlayerId列表
+}
+message PlayerCommonDialogInfo
+{
+    int64 PlayerId = 1;
+    int64 HeadId    = 2;                                    // 头像Id
+    string PlayerName = 3;                                  // 角色名字
+    int64 HeadFrameId = 4;                                  // 头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 5;             // 头像挂件列表
+    string PortraitUrl = 6;                                 // 自定义头像Url
+    bool SelectPortraitUrl = 7;                             // true选择自定义头像PortraitUrl，false使用HeadId
+    int64  LikeHeartTotal = 8;                              // 点赞热度值
+    string Personal = 9;                                    // 个性签名
+    map<int32, AchievementSlotInfoBase> SlotMap = 10;       // 玩家装配的成就徽章信息
+    repeated int64 TagIdList = 12;                          // 个人标签列表
+    repeated MaxDivisionNode MaxDivisionInfoList = 13;          // 最高段位信息 
+}
+message GetPlayerCommonDialogDataRsp
+{
+    repeated PlayerCommonDialogInfo CommonDialogInfoList = 1;    // 玩家的通用交互弹窗数据列表
+}
+
+message ClientBuryingPoint
+{
+    string EventName = 1;               // 埋点的名称只允许，小写字母，数字，下划线，样例 player_login
+    string JsonContext = 2;             // 埋点自定义字段字符串，json格式的数据，名称，小写字母，数字，下划线
+}
+
+message ClientBuryingPointSync
+{
+    repeated ClientBuryingPoint BuryingPoints = 1;
+}

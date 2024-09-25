@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+enum BAN_TYPE
+{
+    BAN_NONE    = 0;    // 不禁止
+    BAN_CHAT     = 1;    // 禁止聊天
+    BAN_VOICE    = 2;    // 禁止语言
+}
+
+
+// 禁止数据同步
+// 玩家登录时主动推送，数据变化时，服务器主动同步
+// 如果玩家没有禁止的话，两个参数为nil，客户端需要注意判断
+
+message BanData{
+    BAN_TYPE    BanType         = 1;    // 禁止类型
+    int64       BanTime         = 2;    // 禁止的截止时间戳，UTC0, BnaTima为空或者小于当前时间说明解除禁止了
+    string      BanReason       = 3;    // 禁止原因
+    int64       BanReasonTextId = 4;    // 禁止原因的文本Id,优先用该字段，没有的时候用2禁止原因字段
+}
+message BanDataSync
+{
+    repeated BanData BanList    = 1;    // 禁止列表
+}

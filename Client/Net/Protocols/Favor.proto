@@ -1,0 +1,105 @@
+syntax = "proto3";
+import "Item.proto";
+option go_package="./go;pb";
+package pb;
+
+// 获取好感度数据
+message PlayerGetFavorDataReq
+{
+    repeated int64 HeroIdList = 1;
+}
+
+message HeroFavorInfo
+{
+    int32 FavorLevel = 1;               // 好感度等级
+    int64 CurValue = 2;                 // 当前等级的好感度值
+    map<int32, int64> PrizeList = 3;    // 已经领取的等级标识，key是等级，value是领取奖励的时间戳,未领取就没有这个key/value
+    bool NotFirstEnterFlag = 4;         // true非首次进入，false首次进入
+    map<int64, int32> TaskList = 5;     // TaskId：0/1任务状态
+    map<int64, int64> StoryData = 6;    // key是段落Id,value是完成已读的时间戳
+}
+message PlayerGetFavorDataRsp
+{
+    map<int64, HeroFavorInfo> HeroFavorMap = 1;    // 英雄好感度详细数据,Key是英雄Id
+}
+
+// 设置某个英雄Id已经进入场景系统
+message PlayerSetHeroFirstEnterFlagReq
+{
+    int64 HeroId = 1;                   // 英雄Id
+}
+message PlayerSetHeroFirstEnterFlagRsp
+{
+    int64 HeroId = 1;                   // 英雄Id
+}
+
+// 赠送礼物
+message PlayerSendHeroGiftReq
+{
+    int64 HeroId = 1;                   // 赠送英雄Id
+    int64 ItemId = 2;                   // 赠送物品Id
+    int64 ItemNum= 3;                   // 赠送物品数量    
+}
+message PlayerSendHeroGiftRsp
+{
+    int64 HeroId = 1;                   // 赠送英雄Id
+    int64 ItemId = 2;                   // 赠送物品Id
+    int64 ItemNum= 3;                   // 赠送物品数量    
+}
+
+// 添加好感度同步数据到客户端
+message PlayerAddFavorSyn
+{
+    int64 HeroId = 1;                   // 英雄Id
+    int32 FavorBeforeLevel = 2;         // 增加好感度之前等级
+    int32 FavorAfterLevel = 3;          // 增加好感度之后的等级
+    int64 CurValue = 4;                 // 当前等级的好感度值
+}
+
+// 领取好感度奖励
+message PlayerGetFavorLevelPrizeReq
+{
+    int64 HeroId = 1;                   // 英雄Id
+    repeated int32 FavorLevelList = 2;  // 好感度等级列表
+}
+message PlayerGetFavorLevelPrizeRsp
+{
+    int64 HeroId = 1;                   // 英雄Id
+    repeated int32 FavorLevelList = 2;  // 好感度等级列表
+    repeated PrizeItemNode PrizeItemList = 3;
+    map<int64, PrizeItemNode> DecomposeItemList = 4; // 有些物品分解转换成其他物品，奖励物品的Index-->映射分解的物品
+}
+
+// 存储段落的状态
+message PlayerStorePassageReq
+{
+    int64 HeroId = 1;                   // 英雄Id
+    int64 PassageId = 2;                // 段落Id,标记该段落已读
+}
+message PlayerStorePassageRsp
+{
+    int64 HeroId = 1;                   // 英雄Id
+    int64 PassageId = 2;                // 段落Id,标记该段落已读
+}
+
+// 接取该段落的任务
+message PlayerAcceptPassageTaskReq
+{
+    int64 HeroId = 1;                   // 英雄Id
+    int64 PassageId = 2;                // 段落Id
+    int64 TaskId = 3;                   // 任务Id
+}
+message PlayerAcceptPassageTaskRsp
+{
+    int64 HeroId = 1;                   // 英雄Id
+    int64 PassageId = 2;                // 段落Id
+    int64 TaskId = 3;                   // 任务Id
+}
+
+enum FAVORSTORY_UNLOCK_TYPE
+{
+    FAVORSTORY_UNLOCK_TYPE_NONE = 0;            // 无条件限制
+    FAVORSTORY_UNLOCK_TYPE_FAVORLEVEL = 1;      // 好感度等级
+    FAVORSTORY_UNLOCK_TYPE_PASSAGE = 2;         // 段落
+    FAVORSTORY_UNLOCK_TYPE_TASK = 3;            // 任务
+}

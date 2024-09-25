@@ -1,0 +1,99 @@
+syntax = "proto3";
+option go_package="./go;pb";
+package pb;
+
+// 红点系统模块Id定义
+enum RED_DOT_SYS
+{
+    RED_DOT_INVAILD = 0;            // 无效系统类型
+    RED_DOT_ITEM = 1;               // 物品系统，红点key是物品唯一Id
+    RED_DOT_MAIL = 2;               // 邮件系统, 红点key是邮件的唯一Id
+    RED_DOT_NOTICE = 3;             // 公告系统，红点key是公告的配置的Id
+    RED_DOT_SHOP = 4;               // 商店系统，红点key是商品Id
+    RED_DOT_SEASON_LOTTERY = 5;     // 赛季抽奖卡池，红点key是奖池Id
+    RED_DOT_CHAT_FRIEND = 6;        // 好友聊天，红点key是玩家的PlayerId
+    RED_DOT_CHAT_TEAM = 7;          // 组队聊天，红点key是队伍Id
+    RED_DOT_TEAM_INVIT = 8;         // 组队邀请，红点key是队伍Id
+    RED_DOT_TEAM_APPLY = 9;         // 组队申请，红点key是申请队伍的玩家PlayerId
+    RED_DOT_TEAM_ADD_FRIEND = 10;   // 添加好友，红点key是玩家的PlayerId
+    RED_DOT_FAVOR_LEVEL_PRIZE = 11; // 好感度等级奖励，红点key是等级段Id
+    RED_DOT_FAVOR_TASK_FINISH = 12; // 好感度剧情任务完成，红点key是任务Id
+    RED_DOT_GAME_PLAY_MODE = 13;    // 玩法模式，红点key是模式Id
+    RED_DOT_ACTIVITY = 14;          // 活动系统，红点key是活动Id
+    RED_DOT_ACTIVITY_SUBITEM = 15;  // 活动系统子项Id，红点key是活动的子项Id
+    RED_DOT_PLAYER_LEVEL = 16;      // 玩家等级系统
+    RED_DOT_FAVOR_ITEM = 17;        // 好感度系统，获得可以赠送道具
+    RED_DOT_ACHIEVE = 18;           // 成就系统，红点key是成就Id
+    RED_DOT_BATTLE_PASS = 19;       // 赛季通行证，红点Key是通行证等级
+
+    RED_DOT_MISC_SYS = 4096;        // 其他模块只有一个key的红点数据集合
+}
+
+// 其他系统中只有一个key的数据定义
+enum RED_DOT_SYS_KEY_ID
+{
+    RED_DOT_SYS_KEY_ID_INVAILD = 0;             // 无效系统key
+    RED_DOT_SYS_KEY_ID_VISITOR = 1;             // 访客红点key
+}
+
+message RedDotNode
+{
+    bool State = 1;                 // true 有红点 false 没有红点
+}
+
+message TagCustomInfo
+{
+    repeated string Tag = 1;                 // 整存整取的标识
+}
+
+message RedDotInfo
+{
+    map<int64, RedDotNode> RedDotMap = 1;    // 模块的红点数据,int64红点key
+}
+
+// 获取某些系统的红点数据
+message PlayerGetRedDotDataReq
+{
+}
+message PlayerGetRedDotDataRsp
+{
+    map<int32, RedDotInfo> RedDotSysMap = 1;        // 系统模块Id当做key的红点数据
+    map<string, TagCustomInfo> CustomInfoMap = 2;   // key是客户端自定义的字符串
+    map<string, int32> DigitRedDotMap = 3;          // 数字红点的数字，key是有功能Id:key拼接起来的
+}
+
+// 增量同步红点数据
+message PlayerUpdateRedDotInfoSyn
+{
+    map<int32, RedDotInfo> RedDotSysMap = 1;        // 系统模块Id当做key的红点数据
+    map<string, int32> DigitRedDotMap = 2;          // 数字红点的数字，key是有功能Id:key拼接起来的
+}
+
+// 取消红点
+message CancelRedDotInfo
+{
+    RED_DOT_SYS SysId = 1;                  // 系统Id
+    int64 KeyId = 2;                        // 红点key
+}
+message PlayerCancelRedDotInfoReq
+{
+    RED_DOT_SYS SysId = 1;                              // 该字段如果有值，则取消该系统的所有红点数据，为0时，则以CancelRedDotList列表为准
+    repeated CancelRedDotInfo CancelRedDotList = 2;     // 要取消的红点列表信息
+}
+message PlayerCancelRedDotInfoRsp
+{
+    RED_DOT_SYS SysId = 1;                              // 该字段如果有值，则取消该系统的所有红点数据，为0时，则以CancelRedDotList列表为准
+    repeated CancelRedDotInfo CancelRedDotList = 2;     // 要取消的红点列表信息
+}
+
+// 设置红点自定义Tag数据
+message PlayerSetRedDotInfoTagReq
+{
+    map<string, TagCustomInfo> CustomInfoMap = 1;           // key是客户端自定义的字符串
+    bool SetFlag = 2;                                       // ture存储数据，false取消数据
+}
+message PlayerSetRedDotInfoTagRsp
+{
+    map<string, TagCustomInfo> CustomInfoMap = 1;          // key是客户端自定义的字符串
+    bool SetFlag = 2;                                      // ture存储数据，false取消数据
+}

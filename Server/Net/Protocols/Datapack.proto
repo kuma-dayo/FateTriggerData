@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+
+/*
+DataPack
+|-----20----|------------------ Size ------------------|
+|  PackHead |      MsgHead    |        MsgData         |
+|---- 20 ---|-- MsgHeadSize --|--- Size-MsgHeadSize ---|
+
+PackHead 数据包头, 固定20字节:
+|00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19|
+|-----4-----|-1|-1|-1|-1|------4----|------4----|--2--|--2--|
+|           | V| F| T| C|           |           | MSG |     |
+| G  R A  V | E| L| Y| R|  SEQUENCE |   SIZE    | HEAD|CHECK|
+|           | R| A| P| Y|           |           | SIZE| CODE|
+|           |  | G| E| P|           |           |     |     |
+|-----4-----|-1|-1|-1|-1|------4----|------4----|--2--|--2--|
+struct PackHead
+{
+    char[4]  Name;          // 固定协议头:"grav"
+    uint8_t  Version;       // 版本号:1-255
+    uint8_t  PackFlag;      // 协议标记:enum PackFlag
+    uint8_t  MsgType;       // 消息类型:enum MsgType
+    uint8_t  Crypto;        // 加密字段:enum CryptoType
+    uint32_t Sequence;      // 序列号(网络字节序)
+    uint32_t Size;          // PackHead之后的总长度:0-2^32(网络字节序)
+    uint16_t MsgHeadSize;   // msg_head_data长度:0-2^16(网络字节序)
+    uint16_t CheckCode;     // 校验码:0-2^16(msg_head+msg_data校验和)(网络字节序)
+}
+MsgHead 消息头, 长度为: PackHead.MsgHeadSize
+MsgData 消息内容, 长度为: PackHead.Size-PackHead.MsgHeadSize
+*/
+enum PackFlag
+{
+    PACK_NONE       = 0;    // 无包头
+    PACK_NORMAL     = 1;    // 普通包
+    PACK_SERVICE    = 2;    // SERVICE包，带路由信息
+}
+enum MsgType
+{
+    MSG_NONE    = 0;    // 无包头
+    MSG_PBRPC   = 1;    // PBRPC
+    MSG_LUARPC  = 2;    // LUARPC
+}
+enum CryptoType
+{
+    CRYPTO_NONE     = 0;    // 明文
+    CRYPTO_BLOWFISH = 1;    // BF
+    CRYPTO_RC4      = 2;    // RC4
+    CRYPTO_AES      = 3;    // AES
+}
+message MsgHeadNormal
+{
+    string  Rpccmd          = 1;    // RPC名
+    uint32  Reliableid      = 2;    // 可靠消息ID
+    bool    Ack             = 3;    // 是否为ACK包
+    string  TraceContext    = 4;    // 链路追踪上下文
+}
+
+
+message HandshakeReq
+{
+    bytes CliECPubKey  = 1;    // 客户端CE公钥
+}
+message HandshakeRsp
+{
+    bytes SvrECPubKey       = 1;    // 服务器CE公钥
+    bytes  SvrECPubKeySign  = 2;    // 服务器CE公钥签名
+    bytes  IvS2c            = 3;    // S2C初始向量
+    bytes  IvC2s            = 4;    // C2S初始向量
+}

@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+message AchievementSlotInfoBase
+{
+    int64 AchvGroupId = 1;    // 成就组Id
+    int32 SlotPos     = 2;    // 位置，从1开始
+}
+
+// 获取玩家全部已解锁成就信息
+message GetAchievementInfoReq
+{
+    int64 PlayerId = 1;    // 玩家PlayerId, 0表示请求自己的数据, 非0表示则请求其他玩家数据
+}
+
+message AchievementInfoNode
+{
+    int64 AchvId      = 1;    // 成就Id
+    int64 FinishTime  = 2;    // 完成时间
+    int32 FinishCnt   = 3;    // 完成次数
+}
+message GetAchievementInfoRsp
+{
+    repeated AchievementInfoNode AchievementInfo = 1;    // 已解锁的成就信息，数组
+    map<int32, AchievementSlotInfoBase> SlotMap  = 2;    // 玩家装配的成就徽章信息
+    int64 PlayerId                               = 3;    // 对应玩家的成就信息
+}
+
+// 装配成就到槽位
+message SetAchievementSlotReq
+{
+    int64 AchvGroupId = 1;    // 成就组Id
+    int32 SlotPos     = 2;    // 要装配的槽位，从1开始
+}
+
+message SetAchievementSlotRsp
+{
+    int64 AchvGroupId = 1;    // 成就组Id
+    int32 SlotPos     = 2;    // 要装配的槽位，从1开始
+}
+
+// 从槽位卸下成就
+message RemoveAchievementSlotReq
+{
+    int64 AchvGroupId = 1;    // 成就组Id
+}
+
+message RemoveAchievementSlotRsp
+{
+    int64 AchvGroupId = 1;    // 成就组Id
+    int32 SlotPos     = 2;    // 卸下的槽位位置，从1开始
+}
+
+// 成就数据更新通知
+message AchievementInfoUpdateNotify
+{
+    int64 AchvId      = 1;    // 成就Id
+    int64 FinishTime  = 2;    // 完成时间
+    int32 FinishCnt   = 3;    // 完成次数
+}

@@ -1,0 +1,137 @@
+syntax = "proto3";
+import "Common.proto";
+
+option go_package="./go;pb";
+package pb;
+
+message HeartbeatReq
+{
+    int32 PingIndex         = 1;
+    int64 ClientTimestamp   = 2;
+}
+message HeartbeatRsp
+{
+    int64 ServerTimestamp   = 1;
+    int32 PingIndex         = 2;
+    int64 ClientTimestamp   = 3;
+}
+message ErrorSync
+{
+    int32           ErrCode = 1;    // 错误码
+    string          ErrCmd  = 2;    // 错误命令
+    string          ErrMsg  = 3;    // 错误信息
+    repeated string ErrArgs = 4;    // 错误参数
+}
+message TipsSync
+{
+    int32           TipsCode = 1;    // 提示码
+    string          TipsMsg  = 2;    // 提示信息
+    repeated string TipsArgs = 3;    // 提示参数
+}
+
+message IdIpSync
+{
+    int32           IdIpCode    = 1;    // 提示码
+    string          IdIpCmd     = 2;    // 命令
+    string          IdIpsMsg    = 3;    // 信息
+    repeated string IdIpArgs    = 4;    // 参数
+}
+
+// SDK登录
+message SDKLoginReq
+{
+    string          UserId          = 1;    // SDK返回的OpenID
+    string          Token           = 2;    // 登录SDK获得的Token
+    ClientInfo      ClientInfo      = 3;    // 客户端信息
+    DeviceInfo      DeviceInfo      = 4;    // 设备信息
+    LocationInfo    LocationInfo    = 5;    // 位置信息
+    AccountInfo     AccountInfo     = 6;    // 账号信息
+}
+// 开发登录(正式运营可能会不处理该消息)
+message DevLoginReq
+{
+    string          UserId          = 1;    // 账号ID(登录窗口输入的账号ID)
+    ClientInfo      ClientInfo      = 2;    // 客户端信息
+    DeviceInfo      DeviceInfo      = 3;    // 设备信息
+    LocationInfo    LocationInfo    = 4;    // 位置信息
+    AccountInfo     AccountInfo     = 5;    // 账号信息
+}
+// 鉴权失败
+message AuthFailSync
+{
+    int32  ErrCode  = 1;
+    string ErrMsg   = 2;
+    string SdkMsg   = 3;
+}
+// 登录排队进度通知
+message LoginQueueSync
+{
+    int32   TotalNum    = 1;    // 当前排队总人数
+    int32   CurrNum     = 2;    // 所在队列位置
+}
+// 登录返回
+message LoginRsp
+{
+    string  UserId      = 1;    // 账号ID(登录窗口输入的账号ID或gsdk返回的openid)
+    int64   PlayerId    = 2;    // 玩家ID
+    int64   GameToken   = 3;    // 游戏令牌
+}
+// 等待创建角色
+message WaitCreatePlayerSync
+{
+    string  UserId      = 1;    // 账号ID
+}
+// 请求创建角色
+message CreatePlayerReq
+{
+    string  UserId      = 1;    // 账号ID
+    string  PlayerName  = 2;    // 玩家名
+    int64   HeadId      = 3;    // 头像Id
+}
+// 创建角色返回
+message CreatePlayerRsp
+{
+    string  UserId      = 1;    // 账号ID(登录窗口输入的账号ID或gsdk返回的openid)
+    int64   PlayerId    = 2;    // 玩家ID
+    uint32  ErrorCode   = 3;    // 错误码
+    int64   GameToken   = 4;    // 游戏令牌
+}
+
+// 请求快速重连
+message ContinueReq{
+    string          UserId          = 1;    // 账号ID(登录窗口输入的账号ID或gsdk返回的openid)
+    int64           PlayerId        = 2;    // 玩家ID
+    int64           GameToken       = 3;    // 游戏令牌
+    ClientInfo      ClientInfo      = 4;    // 客户端信息
+}
+// 快速重连返回
+message ContinueRsp
+{
+    int32   ErrCode     = 1;    // 错误码
+    string  UserId      = 2;    // 账号ID(登录窗口输入的账号ID或gsdk返回的openid)
+    int64   PlayerId    = 3;    // 玩家ID
+    int64   GameToken   = 4;    // 新游戏令牌
+}
+
+// 大厅版本信息同步
+message GateVersionSync
+{
+    string Stream       = 1;    // 分支信息:trunk、release、weekrun……
+    string Changelist   = 2;    // 123456
+    string ZoneName     = 3;    // 分区名
+    string PackTime     = 4;    // gate打包时间
+}
+
+// 登出
+message LogoutReq
+{
+    string Reason = 1;
+}
+// 通知玩家被踢出
+message KickoutSync
+{
+    string          Reason  = 1;
+    int32           ErrCode = 2;
+    string          ErrMsg  = 3;    // 错误信息
+    repeated string ErrArgs = 4;    // 错误参数
+}

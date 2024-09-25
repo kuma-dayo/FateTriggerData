@@ -1,0 +1,40 @@
+syntax = "proto3";
+import "Battle.proto";
+option go_package="./go;pb";
+package pb;
+
+// 玩家个人结算数据统计
+message PlayerSettlementUnit
+{
+    int64 PlayerId = 1;     // 玩家PlayerId
+    int32 HeroTypeId = 2;   // 英雄头像id
+    int32 PlayerKill = 3;    // 击杀数
+    int32 KnockDown = 4;    // 击倒
+    int32 RescueTimes = 5;  // 救助次数
+    int32 RespawnTimes = 6; // 复活别人的次数
+    int32 PlayerAssist = 7;     // 助攻
+    int32 PlayerDamage = 8;     // 伤害
+    float PlayerSurvivalTime = 9; // 玩家生存时间
+    uint32 PosInTeam = 10;      // 在队伍中的位置
+    string PlayerName = 11;     // 玩家名字
+    int64 SkinId = 12;          // 玩家皮肤Id
+}
+
+message TeamSettlementSync 
+{
+    repeated PlayerSettlementUnit Settlements = 1;  // 队伍内玩家结算数据详情
+    GameplayCfgBase GameplayCfg = 2;                // 当前游戏模式基础数据
+    int32 RankNum = 3;                              // 当前队伍排名
+    int32 TotalTeams = 4;                           // 总队伍数
+    string GameId = 5;                              // Game Id 
+    int32 Level = 6;                                // 当前等级
+    int32 Experience = 7;                           // 当前经验
+    int32 DeltaExperience = 8;                      // 增量经验
+
+    map<int64, int64> TaskRewards = 9;              // 结算任务奖励, key为任务id，value为奖励id
+    repeated int64 CompletedTasks = 10;             // 当前对局完成的任务s
+    int32 PassLevel = 11;                           // 通行证等级
+    int32 DeltaPassLevel = 12;                      // 通行证变化等级数，如 +1，+2
+    int32 PassExp = 13;                             // 通行证经验
+    int32 DeltaPassExp = 14;                        // 通行证变化的经验，如 +20
+}

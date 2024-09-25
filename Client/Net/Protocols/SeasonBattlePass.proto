@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// BattlePass通行证
+
+enum PASS_TYPE
+{
+    BASIC  = 0;    // 普通通行证 默认解锁
+    PREMIUM = 1;    // 高级通行证
+    DELUXE  = 2;    // 豪华通行证
+}
+
+message BuyPassReq
+{
+    int32 SeasonBpId = 1;
+    PASS_TYPE PassType = 2;
+}
+
+message BuyPassRsp
+{
+    int32 SeasonBpId = 1;
+    PASS_TYPE PassType = 2;      // 购买成功的通行证类型
+}
+
+// 领取通行证奖励
+message RecvPassRewardReq
+{
+}
+
+message RecvPassRewardRsp
+{
+    repeated int64 DropIdList = 1;              // 领取的奖励物品列表
+    int32 BasicAwardedLevel = 2;                // 基础通行证已领取奖励等级
+    int32 PremiumAwardedLevel = 3;              // 高级
+    int32 DeluxeAwardeLevel = 4;                // 豪华
+    PASS_TYPE PassType = 5;                     // 玩家当前通行证类型
+}
+
+// 通行证等级和领取状态
+message PassStatusReq
+{
+}
+
+message PassStatusRsp
+{
+    int32 SeasonBpId = 1;       // 当前通行证Id
+    PASS_TYPE PassType = 2;     // 当前解锁的通行证类型
+    int32 BasicAwardedLevel = 3;                // 基础通行证已领取奖励等级
+    int32 PremiumAwardedLevel = 4;              // 高级
+    int32 DeluxeAwardeLevel = 5;                // 豪华
+    int32 Level = 6;            // 通行证等级
+    int32 Exp = 7;              // 当前等级的经验数
+    int32 Week = 8;             // 赛季开始后的第几周
+    int64 StartTime = 9;        // 开始时间
+    int64 EndTime = 10;          // 结束时间
+    int32 TotWeek = 11;          // 当前赛季总共有多少周
+}
+
+// 通行证等级请求 先保留
+message PassExpReq
+{
+    int32 Level = 1;        // 通行证等级
+    int32 Exp = 2;          // 当前等级的经验数
+}
+
+// 通行证经验提升同步
+message PassExpIncSync
+{
+    int32 Level = 1;        // 通行证等级
+    int32 Exp = 2;          // 当前等级的经验数
+    int32 IncLevel = 3;     // 升了多少级
+    int32 PassType = 4;     // 当前通行证类型
+}
+
+// 赛季日任务
+message PassDailyTaskReq
+{
+}
+
+message BpTaskBase
+{
+    int64 BpTaskId = 1;
+    int64 TaskId = 2;
+}
+
+message PassDailyTaskRsp
+{
+    repeated BpTaskBase TaskList = 1;
+    int32 TimeToRefresh = 2;            // 剩余刷新时间 单位s
+}
+
+// 赛季周任务获取
+message PassWeekTaskReq
+{
+    int32 Week = 1;
+}
+
+message PassWeekTaskRsp
+{
+    int32 Week = 1;                     // 第几周的任务
+    repeated BpTaskBase TaskList = 2;   // 返回请求周的任务
+    bool Unlock = 3;                    // 该周任务是否解锁
+}
+
+// 赛季周任务获取 请求截至到包含当前周之前的所有周任务
+message PassUnlockWeekTaskReq
+{
+}
+
+message WeeklyTasksBase
+{
+    repeated BpTaskBase TaskList = 1;
+}
+message PassUnlockWeekTaskRsp
+{
+    map<int32, WeeklyTasksBase> WeeklyTasksList = 1;    // 已解锁周所有任务
+    int32 CurWeek = 2;                                  // 当前周
+}
+

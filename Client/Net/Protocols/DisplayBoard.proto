@@ -1,0 +1,159 @@
+syntax = "proto3";
+option go_package="./go;pb";
+package pb;
+
+// 获取展示版的数据
+message PlayerDisplayBoardDataReq
+{
+
+}
+message LbStickerNode
+{
+    int64 StickerId = 1;                    // 贴纸Id
+    int32 XPos = 2;                         // X偏移坐标
+    int32 YPos = 3;                         // Y偏移坐标
+    int32 Angle = 4;                        // 角度
+    int32 ScaleX = 5;                        // X缩放系数
+    int32 ScaleY = 6;                        // Y缩放系数
+}
+message LbDisplayBoardInfo
+{
+    int64 FloorId = 1;                          // 底板Id
+    int64 RoleId = 2;                           // 角色Id
+    int64 EffectId = 3;                         // 特效Id
+    map<int64, LbStickerNode> StickerMap = 4;     // 贴纸数据
+    map<int64, int64> AchieveMap = 5;           // 成就数据,key是插槽位置，value是成就组Id
+    map<int64, int64> AchieveSubMap = 6;        // 成就数据,key是插槽位置，value是成就组获得最大成就子Id
+}
+message PlayerDisplayBoardDataRsp
+{
+    map<int64, LbDisplayBoardInfo> DisplayBoardMap = 1;    // 不同角色的展示板数据
+}
+
+// 解锁底板
+message PlayerBuyFloorReq
+{
+    int64 FloorId = 1;                   // 底板Id
+}
+message PlayerBuyFloorRsp
+{
+    int64 FloorId = 1;                   // 底板Id
+}
+
+// 选择使用底板
+message PlayerSelectFloorReq
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 FloorId = 2;                  // 底板Id
+}
+message PlayerSelectFloorRsp
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 FloorId = 2;                  // 底板Id
+}
+
+// 解锁角色
+message PlayerBuyRoleReq
+{
+    int64 RoleId = 1;                   // 角色Id
+}
+message PlayerBuyRoleRsp
+{
+    int64 RoleId = 1;                   // 特效Id
+}
+
+// 选择使用角色
+message PlayerSelectRoleReq
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 RoleId = 2;                   // 角色Id
+}
+message PlayerSelectRoleRsp
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 RoleId = 2;                   // 角色Id
+}
+
+// 解锁特效
+message PlayerBuyEffectReq
+{
+    int64 EffectId = 1;                   // 特效Id
+}
+message PlayerBuyEffectRsp
+{
+    int64 EffectId = 1;                   // 特效Id
+}
+
+// 选择使用特效
+message PlayerSelectEffectReq
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 EffectId = 2;                 // 特效Id
+}
+message PlayerSelectEffectRsp
+{
+    int64 HeroId = 1;                   // 英雄Id 
+    int64 EffectId = 2;                 // 特效Id
+}
+
+// 解锁贴纸
+message PlayerBuyStickerReq
+{
+    int64 StickerId = 1;                   // 贴纸Id
+}
+message PlayerBuyStickerRsp
+{
+    int64 StickerId = 1;                   // 贴纸Id
+}
+
+// 装备贴纸
+message PlayerEquipStickerReq
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+    LbStickerNode StickerInfo = 3;          // 贴纸信息
+}
+message PlayerEquipStickerRsp
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+    LbStickerNode StickerInfo = 3;          // 贴纸信息
+}
+
+// 卸载贴纸
+message PlayerUnEquipStickerReq
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+}
+message PlayerUnEquipStickerRsp
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+}
+
+// 装备成就
+message PlayerEquipAchieveReq
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+    int64 AchieveGroupId = 3;               // 成就组Id
+}
+message PlayerEquipAchieveRsp
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+    int64 AchieveGroupId = 3;               // 成就组Id
+}
+
+// 卸载成就
+message PlayerUnEquipAchieveReq
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+}
+message PlayerUnEquipAchieveRsp
+{
+    int64 HeroId = 1;                       // 英雄Id
+    int32 Slot = 2;                         // 位置
+}

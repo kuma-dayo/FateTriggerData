@@ -1,0 +1,562 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+message DSHeartbeatReq
+{
+    string GameId = 1;
+    int64 TimeStamp = 2;
+}
+
+// ---------------- s2d --------------
+//心跳回报
+message DSHeartbeatRsp
+{
+    string GameId = 1;
+    int64 TimeStamp = 2;
+}
+
+//玩法相关的信息
+message GameplayInfoBase
+{
+    string GameId = 1;
+    bool bCanRepeatHero = 2;
+    int32 TeamType = 3;     // 1, 2, 4
+    int32 ModeId = 4;
+    int32 SceneId = 5;
+}
+//同步DS数据
+message GameParamSync
+{
+    string GameId = 1;
+    string Ip = 2;
+    string HostIp = 3;
+    int32 Port = 4;
+    string ScenePath = 5;
+    string GameBranch = 6;
+    string Stream = 7;
+    string Changelist = 8;
+    bool RunInWsl = 9;
+    GameplayInfoBase GameplayInfo = 10;
+    bool IsForkDS = 11;
+    string DsEncryptKey=12;
+    bool bEnableObjectPool=13;      // 是否开启对象池功能
+    int32 HumanTeamCount = 14;      // 真实玩家的队伍数
+    int32 HumanPlayerCount = 15;    // 真实玩家人数
+}
+
+// 向父DS发出Fork消息
+// 新的通知父进程启动子DS进程的方法
+message ForkProcessReq
+{
+    string ChildCmdLine = 1;
+    int32 ForkIndex = 2;       // 从 1 开始，每次一个新的 Fork ++
+    string GameId = 3;         // DS GameId
+    bool bEnableThreading = 4; // 是否开启多线程
+}
+
+message ForkProcessRsp
+{
+    string GameId = 1;    // 父DS的GameId
+    string ChildGameId = 2; // 子DS的GameId
+    int64 Pid = 3;        // 子DS的Pid
+}
+
+// 表示DS加载阶段最耗CPU最耗内存的阶段已经完成
+message TimeConsumingPhaseLoadFinish
+{
+    string GameId = 1;    // 父或子DS的GameId
+}
+
+// 父DS进程启动成功，并加载地图完毕，可以开启后续启动子DS的流程
+message ReadyForkProcess
+{
+    string GameId = 1;
+}
+
+message HeroSkinPartInfo
+{
+    repeated int64 SkinPartItemIdList = 1;    // 皮肤附带的部件对应的物品Id
+}
+
+//玩家某个英雄解锁的皮肤Id数组
+message HeroSkinListBase
+{
+    string GameId = 1;
+    repeated int64 SkinList = 2;    // 英雄解锁的皮肤Id
+    int64 SelectSkinId = 3;         // 英雄局外选择的皮肤
+    map<int64, HeroSkinPartInfo> SkinPartMap = 4;   // key是皮肤对应的物品Id, value是附带的部件对应的物品Id列表
+}
+
+//皮肤Id列表数组
+message SkinIdListBase
+{
+    repeated int64 SkinIdList = 1;
+}
+//武器皮肤Id结构
+message WeaponSkinIdBase
+{
+    int64 WeaponSkinId = 1;
+    int64 WeaponItemId = 2;
+}
+//玩家武器皮肤列表
+message WeaponSkinListBase
+{
+    map<int64, SkinIdListBase> WeaponSkinTb = 1;                    // 玩家武器解锁皮肤列表
+    map<int64, WeaponSkinIdBase> WeaponSelectSkinTb = 2;            // 玩家武器选择的皮肤
+    map<int64, SkinIdListBase> WeaponSkinPartSkinTb = 3;            // 玩家武器某皮肤下配件皮肤
+}
+
+message StickerNode
+{
+    int64 StickerId = 1;                    // 贴纸Id
+    int32 XPos = 2;                         // X偏移坐标
+    int32 YPos = 3;                         // Y偏移坐标
+    int32 Angle = 4;                        // 角度
+    int32 ScaleX = 5;                       // X缩放系数
+    int32 ScaleY= 6;                        // Y缩放系数
+}
+message DisplayBoardInfo
+{
+    int64 FloorId = 1;                          // 底板Id
+    int64 RoleId = 2;                           // 角色Id
+    int64 EffectId = 3;                         // 特效Id
+    map<int64, StickerNode> StickerMap = 4;     // 贴纸数据,key是插槽位置，value是贴纸数据
+    map<int64, int64> AchieveMap = 5;           // 成就数据,key是插槽位置，value是成就组Id
+    map<int64, int64> AchieveSubMap = 6;        // 成就数据,key是插槽位置，value是成就组获得最大成就子Id
+}
+
+message FavorInfo
+{
+    bool DropItemFlag = 1;                          // 本局能否掉好感度物品
+}
+
+message VehicleStickerNode
+{
+    int64 StickerItemId = 1;                    // 贴纸对应的物品Id
+    string CustomData = 2;                      // 自定义贴纸数据字符串，具体格式咨询前端
+}
+message VehicleStickerData
+{
+    repeated VehicleStickerNode StickerList = 1;// 载具贴纸列表
+}
+message HeroVehicleNode
+{
+    string LicensePlate = 1;                        // 载具车牌号
+    repeated int64 VehicleSkinItemIdList = 2;       // 载具解锁的皮肤对应的物品Id
+    map<int64, VehicleStickerData> VehicleSkinStickerMap = 3;   // Key是载具解锁的皮肤的物品Id，Value是该皮肤上的贴纸信息
+    int64 SelectSkinItemId = 4;                     // 当前载具选中的皮肤的物品Id
+}
+
+// 同步局内玩家数据
+message PlayerInfoRsp
+{
+    string GameId = 1;
+    string LobbyAddr = 2;
+    int64 TeamId = 3;
+    int64 TeamPosition = 4;
+    string PlayerName = 5;
+    int64 HeroId = 6;
+    bool bAIPlayer = 7;
+    int64 PlayerId = 8;
+    bool bInBattle = 9;
+    bool bReconnect = 10;
+    int64 SkinId = 11;
+    map<int64, HeroSkinListBase> HeroInfoList = 12;
+    string RtcGameToken = 13;
+    string RtcTeamToken = 14;
+    string Changelist = 15;
+    WeaponSkinListBase WeaponSkinList = 16;                 // 玩家皮肤列表
+    map<int64, DisplayBoardInfo> DisplayBoardMap = 17;      // 不同角色的展示板数据,key是角色Id，value角色的展示板数据
+    FavorInfo FavorData = 18;                               // 好感度数据
+    map<int64, TaskInfoNode> TaskInfoMap = 19;              // 传给局内任务数据,Key是任务Id,Value是任务的进度信息
+    map<int64, HeroVehicleNode> HeroVehicleMap = 20;        // Key是载具对应的物品Id, Value是单个载具携带的解锁皮肤数据以及贴纸数据
+    map<int64, int64> ItemInfoMap = 21;                     // Key是物品Id,Value是物品数量
+    string UserId = 22; // 角色账号Id
+}
+
+//选择英雄Rsp
+message DSSelectHeroRsp
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    bool bChanged = 3;
+    int64 HeroId = 4;
+    int64 SkinId = 5;
+    bool bPreSelectHero = 6;
+    string Reason = 7;
+}
+
+//选择皮肤Rsp
+message DSSelectSkinRsp
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    bool bChanged = 3;
+    int64 SkinId = 4;
+    string Reason = 5;
+}
+
+//更新局内玩家数据
+message UpdatePlayerInfoSync
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    PlayerInfoRsp PlayerInfo = 3;
+}
+
+// 玩家退出ds对局通知
+message PlayerExitDSSync
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    string Reason  = 3;
+}
+
+//杀死DS通知
+message KillDSSync
+{
+    string GameId = 1;
+    string Reason = 2;
+    int64 RealKillTime = 3;
+}
+
+// ---------------- d2s --------------
+message RegistDSReq
+{
+    string GameId = 1;
+    int64 Pid = 2;
+    bool bAsanDs = 3;
+}
+
+message GameParamSyncReq
+{
+    string GameId = 1;
+    float GameTotalTime = 2;
+}
+
+message OnDSCrash
+{
+    string GameId = 1;
+    int64 Pid = 2;
+}
+
+//请求玩家数据
+message PlayerInfoReq
+{
+    string GameId = 1;
+    int64 Pid = 2;
+}
+
+message PlayerRuntimeHeroSync
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    int64 HeroId = 3;
+}
+
+//请求选择英雄
+message DSSelectHeroReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    int64 HeroId = 3;
+    bool bPreSelectHero = 4;
+}
+
+//请求选择皮肤
+message DSSelectSkinReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    int64 SkinId = 3;
+}
+
+//验证并通知玩家DS信息
+message CheckLoginKeyReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    string Key = 3;
+}
+
+//玩家在线状态同步
+//旧PlayerOnlineStateChange
+message PlayerOnlineStateChangeReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    string StateTagName = 3;
+}
+
+//英雄、武器、载具结算数据
+message BattleWeaponDataBase
+{
+    string GameId = 1;
+    int32 GunTotalKill = 2;
+    int32 GunTotalHeadShot = 3;
+    float GunTotalDamage = 4;
+    int32 GunPossessedTime = 5;
+    int32 GunTotalKnockDown = 6;
+}
+message BattleSkillDataBase
+{
+    string GameId = 1;
+    int64 TotalInjury = 2;
+    int32 HealAmount = 3;
+    int32 KillNum = 4;
+    int32 KnockDownNum = 5;
+    int32 UsesNum = 6;
+    int32 Duration = 7;
+}
+message BattleHeroDataBase
+{
+    string GameId = 1;
+    int32 KnockDownNum = 2;
+    int32 KillNum = 3;
+    map<int64, BattleSkillDataBase> SkillsData = 4;
+}
+message BattleVehicleDataBase
+{
+    string GameId = 1;
+    int32 KillNum = 2;
+    int32 KnockDownNum = 3;
+}
+message BattleDataBase
+{
+    string GameId = 1;
+    map<int64, BattleWeaponDataBase> WeaponsData = 2;
+    map<int64, BattleHeroDataBase> HerosData = 3;
+    map<int64, BattleVehicleDataBase> VehiclesData = 4;
+}
+message SaveBattleDataReq
+{
+    string GameId = 1;
+    map<int64, BattleDataBase> BattleData = 2;
+}
+
+//游戏状态同步
+message GameStateChangeReq
+{
+    string GameId = 1;
+    string Status = 2;
+}
+
+//玩家结算
+message PlayerSettlementMsg
+{
+    string GameId = 1;
+    int32 HeroTypeId = 2;
+    int32 PlayerKill = 3;
+    int32 KnockDown = 4;
+    int32 RescueTimes = 5;
+    int32 RespawnTimes = 6;
+    int32 RemainingPlayers = 7;
+    int32 PlayerAssist = 8;
+    int32 PlayerDamage = 9;
+    int32 RemainingTeams = 10;
+    int32 PlayerSurvivalTime = 11;
+    bool bIsTeamOver = 12;
+    bool bIsTeamWinner = 13;
+    bool bRespawnable = 14;
+    uint32 PosInTeam = 15;
+    int32 SkinId = 16;
+    bool bIsLive = 17;          // true玩家存活，false玩家死亡
+    int32 HealAmount = 18;      // 治疗量
+    int32 MoveDistance = 19;    // 移动距离
+    float HeadShotRate = 20;    // 爆头率
+    int32 PlayerDeath = 21;     // 玩家死亡次数
+    int32 HeadShotNum = 22;     // 爆头数
+    map<int32, int64> HeroSkillPerfs = 23;      // 玩家使用的英雄技能表现
+    int64 UseGrowthMoneyNum = 24;               // 对局开始，选择使用成长货币数量
+    int64 LeftGrowthMoneyNum = 25;               // 对局结束，剩余成长货币数量
+}
+
+// 击杀信息，即击杀时的数据，（包含击杀者/被击杀者）的PlayerId，后续可扩展如使用的武器，技能等
+message KillEventInfo
+{
+    int64 PlayerId = 1; // 击杀者/被击杀者 玩家PlayerId
+    // ...ext
+}
+
+// 击杀/被击杀统计信息
+message KillsAndDeathsFlow 
+{
+    repeated KillEventInfo Kills = 1;   // 击杀的对象列表，玩家击杀的敌人列表，即玩家击杀的对象
+    repeated KillEventInfo Deaths = 2;  // 玩家被击杀的对象列表，即玩家被哪些敌人击杀过
+}
+
+message PlayerSettlementReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;
+    PlayerSettlementMsg PlayerSettlement = 3; 
+    KillsAndDeathsFlow KillsAndDeaths = 4;
+}
+
+//队伍结算
+message TeamSettlementMsg
+{
+    string GameId = 1;
+    int32 RemainingPlayers = 2;
+    int32 RemainingTeams = 3;
+    bool bIsGameOver = 4;
+    bool bIsWinnerTeam = 5;
+    int32 TeamSurvivalTime = 6;
+    int32 TeamRank = 7; // 队伍排名
+    bool bIsTeamOver = 8;
+    int64 TeamId = 9; // TeamId
+}
+
+// 用于在玩家提前退出时生成当前队伍的结算数据
+message EarlyTeamSettlementReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2;                                 // 给哪位玩家产生的提前结算
+    TeamSettlementMsg TeamSettlement = 3;               // 提前队伍结算数据
+    map<int64, PlayerSettlementMsg> PlayerArray = 4;    // 其他玩家的假结算数据
+}
+
+message TeamSettlementReq
+{
+    string GameId = 1;
+    int64 TeamId = 2;
+    TeamSettlementMsg TeamSettlement = 3; 
+}
+
+// 玩家尝试局内重连请求
+message PlayerReconnectReq
+{
+    string GameId = 1;
+    int64 PlayerId = 2; // 玩家PlayerId
+}
+
+// 玩家尝试局内重连回复
+message PlayerReconnectRsp
+{
+    string GameId = 1;
+    int64 PlayerId = 2; // 玩家PlayerId
+    int32 Key = 3; // Key > 0 可以重连，否则，不能重连！
+}
+
+//游戏结算
+message BattleSettlementMsg
+{
+    string GameId = 1;
+    int64 WinnerTeamId = 2;
+}
+message BattleSettlementReq
+{
+    string GameId = 1;
+    BattleSettlementMsg BattleSettlement = 2;
+}
+
+//团竞、死斗、征服模式结算
+message CampPlayerSettlementBase
+{
+    string GameId = 1;
+    int32 PlayerKill = 2;
+    int32 PlayerDeath = 3;
+    int32 PlayerAssist = 4;
+    int32 PlayerDamage = 5;
+    int32 PlayerScore = 6;
+    int32 PosInTeam = 7;
+    int32 HeroTypeId = 8;
+    int32 CampId = 9;
+    int32 TeamId = 10;
+    int64 PlayerId = 11;
+    string PlayerName = 12;
+    float KDA = 13;             // KDA由Ds计算
+    int32 ConquestCount = 14;   // 占点 征服模式
+    bool bIsWinner = 15;
+    bool bIsLive = 16;          // true玩家存活，false玩家死亡
+    int32 HealAmount = 17;      // 治疗量
+    int32 MoveDistance = 18;    // 移动距离
+    float HeadShotRate = 19;    // 爆头率
+    int32 HeadShotNum = 20;     // 爆头数    
+    int64 UseGrowthMoneyNum = 21;               // 对局开始，选择使用成长货币数量
+    int64 LeftGrowthMoneyNum = 22;              // 对局结束，剩余成长货币数量
+}
+message CampTeamSettlementBase
+{
+    string GameId = 1;
+    map<int64, CampPlayerSettlementBase> PlayerArray = 2;
+}
+message CampSettlementBase
+{
+    string GameId = 1;
+    map<int32, CampTeamSettlementBase> TeamSettlement = 2;   //队伍结算
+    int32 Rank = 3;                                          //阵营排名
+}
+//方便查找玩家的结算
+message PlayerInfoBase
+{
+    string GameId = 1;
+    int32 CampId = 2;   //阵营Id
+    int32 TeamId = 3;   //队伍Id
+}
+message CampSettlementReq
+{
+    string GameId = 1;
+    map<int32, CampSettlementBase> CampSettlement = 2;  //阵营结算
+    map<int64, PlayerInfoBase> PlayerInfoList = 3;      //玩家阵营和队伍Id信息
+    int32 BattleTime = 4;                               //整局持续时间
+}
+
+// DedicatedServerEndSync DS明确告诉DsMgr，该DS即将结束了
+// DsMgr在收到此协议后，可以义无反顾地执行关于该DS的销毁清理工作
+message DedicatedServerEndSync
+{
+    string GameId = 1; 
+    string Reason = 2;    // 对局结束原因
+}
+
+message TaskProcessNode
+{
+    int64 EventId = 1;                                  // 事件Id
+    int64 ProcessValue = 2;                             // 当前进度
+}
+// 局内任务数据更新
+message TaskInfoNode
+{
+    bool FinishFlag = 1;                                // true完成任务 false没有完成
+    repeated TaskProcessNode TargetProcessList = 2;     // 多目标任务进度列表,下标是多任务的的目标索引
+}
+message DsTaskDataNotify
+{
+    string GameId           = 1;
+    int64 PlayerId          = 2;                        // 该玩家PlayerId
+    map<int64, TaskInfoNode> TaskListMap = 3;           // 局内任务数据结果
+    bool ResultFlag         = 4;                        // false个人数据结算，true实时驱动推进任务
+}
+
+// 大厅任务状态发生变化时，给Ds侧的玩家同步任务状态
+message TaskUpdateProcessNotify
+{
+    string GameId               = 1;
+    int64 PlayerId              = 2;
+    map<int64, TaskInfoNode> TaskListMap = 3;           // Key是任务Id，value是任务的进度信息
+    int64 UpdateType            = 4;                    // 1接取任务 2删除任务 3重置任务进度
+}
+
+message DsBuryingPoint
+{
+    int64 PlayerId = 1;                 // 角色类数据，则传角色Id,非角色类数据传0
+    string EventName = 2;               // 埋点的名称只允许，小写字母，数字，下划线，样例 player_login
+    string JsonContext = 3;             // 埋点自定义字段字符串，json格式的数据，名称，小写字母，数字，下划线
+}
+
+// 通用埋点数据协议
+message DsBuryingPointSync
+{
+    string GameId = 1;
+    repeated DsBuryingPoint BuryingPoints = 2;
+}
+
+message DsMetricsReport
+{
+    string GameId      = 1;
+    string EventName   = 2;    // 指标名称只允许，小写字母，数字，小数点分割，样例：ds.report
+    string JsonContext = 3;    // 指标自定义字段字符串，json格式的数据，名称，小写字母，数字，下划线  样例：loadtype=start_time_cost|scope=ds
+}

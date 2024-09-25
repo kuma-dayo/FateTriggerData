@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 选择使用的载具
+message SelectVehicleReq
+{
+    int64 VehicleId = 1;         // 选择的载具Id
+}
+
+// 选择使用的载具应答
+message SelectVehicleRsp
+{
+    int64 VehicleId = 1;        // 选择的载具Id
+}
+
+// 购买载具皮肤
+message BuyVehicleSkinReq
+{
+    int64 VehicleId = 1;         // 购买哪个载具的皮肤
+    int64 VehicleSkinId = 2;     // 购买载具的哪个皮肤
+}
+
+// 购买载具皮肤返回
+message BuyVehicleSkinRsp
+{
+    int64 VehicleId = 1;         // 购买哪个载具的皮肤
+    int64 VehicleSkinId = 2;     // 购买载具的哪个皮肤
+}
+
+// 选择载具的皮肤
+message SelectVehicleSkinReq
+{
+    int64 VehicleId = 1;         // 载具的Id
+    int64 VehicleSkinId = 2;     // 选择载具的哪个皮肤
+}
+
+// 选择载具的皮肤返回
+message SelectVehicleSkinRsp
+{
+    int64 VehicleId = 1;        // 载具的物品Id
+    int64 VehicleSkinId = 2;    // 选择载具的哪个皮肤
+}
+
+// 解锁载具贴纸
+message BuyStickerNode
+{
+    int64 StickerId = 1;        // 贴纸Id
+    int64 BuyCount  = 2;        // 购买数量
+}
+message BuyVehicleStickerReq
+{
+    repeated BuyStickerNode StickerInfoList = 1;   // 要解锁的贴纸信息
+    int64 BuyFrom = 2;          // 从哪儿购买
+}
+message BuyVehicleStickerRsp
+{
+    repeated BuyStickerNode StickerInfoList = 1;   // 解锁成功的贴纸信息
+    int64 BuyFrom = 2;          // 从哪儿购买
+}
+
+// 更新某个载具皮肤的贴纸数据
+message StickerDataNode
+{
+    int64 StickerId = 1;                // 载具贴纸Id
+    string CustomData = 2;              // 自定义数据
+}
+message UpdateVehicleStickerDataReq
+{
+    int64 VehicleSkinId = 1;            // 载具皮肤Id
+    repeated StickerDataNode StickerDataList = 2;   // 载具皮肤装备的贴纸数据
+    int64 UpdateReason = 3;             // 更新原因
+}
+message UpdateVehicleStickerDataRsp
+{
+    int64 VehicleSkinId = 1;            // 载具皮肤Id
+    repeated StickerDataNode StickerDataList = 2;   // 载具皮肤装备的贴纸数据
+    int64 UpdateReason = 3;             // 更新原因
+}
+
+// 从某些载具皮肤上卸载贴纸
+message UnequipStickerFromVehicleSkinReq
+{
+    int64 StickerId = 1;                // 卸载的贴纸Id
+    repeated int64 SkinIdList = 2;      // 从哪些载具皮肤上卸载，会将该皮肤上贴纸Id=StickerId的全部卸载
+}
+message UnequipStickerFromVehicleSkinRsp
+{
+    int64 StickerId = 1;                // 卸载的贴纸Id
+    repeated int64 SkinIdList = 2;      // 从哪些载具皮肤上卸载，会将该皮肤上贴纸Id=StickerId的全部卸载
+}
+
+// 载具摇号
+message RandomVehicleLicensePlateReq
+{
+    int64 VehicleId = 1;                            // 要摇号的载具Id 
+}
+message RandomVehicleLicensePlateRsp
+{
+    int64 VehicleId = 1;                            // 要摇号的载具Id
+    repeated string LicensePlateList = 2;           // 摇号可选载具车牌号，如果摇号失败返回{}
+    int64 LotteryCount = 3;                         // 当前已经摇号次数
+}
+
+// 载具选择车牌号
+message VehicleSelectLicensePlateReq
+{
+    int64 VehicleId = 1;                            // 载具Id
+    string LicensePlate = 2;                        // 载具车牌号
+}
+message VehicleSelectLicensePlateRsp
+{
+    int64 VehicleId = 1;                            // 载具Id
+    string LicensePlate = 2;                        // 载具车牌号
+}
+
+// 获得载具物品时，主动推送载具生成的默认车牌号
+message VehicleDefaultLicenseSync
+{
+    int64 VehicleId = 1;                            // 载具Id
+    string LicensePlate = 2;                        // 载具车牌号
+}

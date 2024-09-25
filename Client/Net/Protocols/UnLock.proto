@@ -1,0 +1,24 @@
+syntax = "proto3";
+option go_package="./go;pb";
+package pb;
+
+enum UNLOCK_TYPE
+{
+    UNLOCK_TYPE_INVAILD  = 0;   // 无效类型
+    UNLOCK_TYPE_LEVEL = 1;      // 等级条件解锁
+}
+
+// 获取所有的解锁Id信息
+message PlayerUnLockInfoReq
+{
+}
+message PlayerUnLockInfoRsp
+{
+    repeated int32 UnLockIdList = 1;        // 解锁Id列表
+}
+
+// 主动通知，解锁Id解锁
+message PlayerUnLockNotify
+{
+    repeated int32 UnLockIdList = 1;           // 解锁Id
+}

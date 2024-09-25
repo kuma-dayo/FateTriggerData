@@ -1,0 +1,33 @@
+--IngameWeapon.xlsx
+Cfg_IngameWeapon = "IngameWeapon"
+G_CfgName2MainKey = G_CfgName2MainKey or {}
+G_CfgName2MainKey[Cfg_IngameWeapon] = "ItemID"
+Cfg_IngameWeapon_P_MainKey = "ItemID"
+Cfg_IngameWeapon_P = {
+    ItemID = "ItemID",
+    DefinitionPath = "DefinitionPath",
+    ItemName = "ItemName",
+    ItemType = "ItemType",
+    Weight = "Weight",
+    MaxStack = "MaxStack",
+    ItemLevel = "ItemLevel",
+    SortPriorityHigh = "SortPriorityHigh",
+    SortPriorityLow = "SortPriorityLow",
+    SupportMarkDelete = "SupportMarkDelete",
+    LimitNumInBag = "LimitNumInBag",
+    InventoryQuickDiscardNum = "InventoryQuickDiscardNum",
+    SlotImage = "SlotImage",
+    ItemIcon = "ItemIcon",
+    BagIcon = "BagIcon",
+    ItemDynamicLua = "ItemDynamicLua",
+    ItemPickupDynamicLua = "ItemPickupDynamicLua",
+    FlowImage = "FlowImage",
+    BulletItemID = "BulletItemID",
+    AmmoRed = "AmmoRed",
+    SimpleDescribe = "SimpleDescribe",
+    IsDropable = "IsDropable",
+    IsShowInUI = "IsShowInUI",
+    IsActivelyDiscard = "IsActivelyDiscard",
+    WeaponTag = "WeaponTag",
+    AllowedSlots = "AllowedSlots",
+}

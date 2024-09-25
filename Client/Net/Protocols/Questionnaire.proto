@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+message QuestionnaireInfoBase
+{
+    int64 QuestId = 1;
+    int64 QuesTitleTextId = 2;          // 问卷名文本Id
+    int64 QuestDescriptionTextId = 3;   // 问卷描述文本Id
+    int64 QuestDescriptionsTextId = 4;  // 问卷描述2 文本Id
+    string QuestLink = 5;               // 问卷连接
+    int64 QuestReward = 6;              // 问卷奖励
+    repeated int64 OuterRewardItemIdList = 7;   // 外显奖励物品Id列表
+    repeated int32 RewardItemCountList = 8;     // 奖励物品数量
+    repeated int32 ZoneIds = 9;         // ZoneIds
+    string CliQuestKey = 10;               // 问卷密钥
+    int64 MailId = 11;                  // 关联邮件模板Id
+    string SId = 12;                    // 问卷Sid
+    int32 ActivityTabId = 13;           // 活动页签Id
+    int32 Priority = 14;                // 优先级
+    int64 StartTS = 15;                 // UTC+0 开启时间戳
+    int64 EndTS = 16;                   // UTC+0 关闭时间戳
+}
+
+message QuestionnaireReq
+{
+}
+
+message QuestionnaireRsp
+{
+    repeated int64 QuestionnaireIds = 1;    // 玩家还未填写的问卷Id组
+}
+
+message QuestionnaireDeliverySync
+{
+    int64 QuestionnaireId = 1;
+}
+
+// 客户端已经弹窗后的ACK
+message QuestionnaireShowAckReq
+{
+    int64 QuestionnaireId = 1;
+}
+
+message QuestionnairesSync
+{
+    repeated QuestionnaireInfoBase QuestionnaireInfos = 1;    // 玩家还未填写的问卷Id组
+}

@@ -1,0 +1,122 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 购买英雄
+message BuyHeroReq
+{
+    int64 HeroId = 1;           // 购买哪个英雄
+}
+
+// 购买英雄应答
+message BuyHeroRsp
+{
+    int64 HeroId = 1;           // 购买哪个英雄
+}
+
+// 选择使用的英雄Id
+message SelectHeroReq
+{
+    int64 HeroId = 1;           // 选择英雄的Id
+}
+
+// 选择使用的英雄Id返回
+message SelectHeroRsp
+{
+    int64 HeroId = 1;           // 选择英雄的Id
+}
+
+// 购买英雄皮肤
+message BuyHeroSkinReq
+{
+    int64 HeroId = 1;           // 购买哪个英雄的皮肤
+    int64 HeroSkinId = 2;       // 购买英雄的哪个皮肤
+}
+
+// 购买英雄皮肤返回
+message BuyHeroSkinRsp
+{
+    int64 HeroId = 1;           // 购买哪个英雄的皮肤
+    int64 HeroSkinId = 2;       // 购买英雄的哪个皮肤
+}
+
+// 选择英雄的皮肤
+message SelectHeroSkinReq
+{
+    int64 HeroId = 1;           // 英雄的物品Id
+    int64 HeroSkinId = 2;       // 选择英雄的哪个皮肤
+}
+
+// 选择英雄的皮肤返回
+message SelectHeroSkinRsp
+{
+    int64 HeroId = 1;           // 英雄的物品Id
+    int64 HeroSkinId = 2;       // 选择英雄的哪个皮肤
+}
+
+// 选择展示英雄Id
+message HeroSelectShowReq
+{
+    int64 HeroId = 1;           // 英雄Id
+    int32 Slot = 2;             // 第几个位置
+}
+message HeroSelectShowRsp
+{
+    int64 HeroId = 1;           // 英雄Id
+    int32 Slot = 2;             // 第几个位置
+}
+
+// 英雄皮肤类型
+enum HERO_SKIN_TYPE
+{
+    HERO_SKIN_TYPE_COMMON    = 0;    // 普通的默认皮肤
+    HERO_SKIN_TYPE_COLORFUL  = 1;    // 炫彩套装类型皮肤
+    HERO_SKIN_TYPE_PART      = 2;    // 部件套装类型皮肤
+}
+
+enum HERO_SKIN_PART_TYPE
+{
+    HERO_SKIN_PART_TYPE_INVAILD  = 0;    // 无效皮肤部位
+    HERO_SKIN_PART_TYPE_HEAD     = 1;    // 头部部件
+    HERO_SKIN_PART_TYPE_MAIN     = 2;    // 主体部件
+    HERO_SKIN_PART_TYPE_LEG      = 3;    // 腿部部件
+}
+
+// 购买英雄皮肤部件
+message BuyHeroSkinPartReq
+{
+    int64 HeroSkinPartId = 1;       // 购买英雄皮肤的部件Id
+}
+
+// 购买英雄皮肤返回
+message BuyHeroSkinPartRsp
+{
+    int64 HeroSkinPartId = 1;       // 购买英雄皮肤的部件Id
+}
+
+// 选择自定义英雄皮肤部件
+message SelectHeroSkinCustomPartReq
+{
+    int64 HeroId = 1;                       // 英雄Id,用来判断是否选择英雄，外显同步给组队系统
+    repeated int64 HeroSkinPartIdList = 2;  // 多部件装备皮肤部件Id列表
+}
+
+// 选择自定义英雄皮肤部件返回
+message SelectHeroSkinCustomPartRsp
+{
+    int64 HeroId = 1;                       // 英雄Id,用来判断是否选择英雄，外显同步给组队系统
+    repeated int64 HeroSkinPartIdList = 2;  // 多部件装备皮肤部件Id列表
+}
+
+// 某个套装皮肤Id设置默认的主体皮肤
+message SelectHeroSkinDefaultPartReq
+{
+    int64 HeroSkinId = 1;           // 皮肤Id,如果传0则是使用自定义部件组合数据
+    int64 SuitId = 2;               // 套装Id
+}
+message SelectHeroSkinDefaultPartRsp
+{
+    int64 HeroSkinId = 1;           // 皮肤Id,如果传0则是使用自定义部件组合数据
+    int64 SuitId = 2;               // 套装Id
+}

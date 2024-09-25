@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+enum CHAT_TYPE
+{
+    PRIVATE_CHAT       = 0;    // 私聊
+    WORLD_CHANNEL_CHAT = 1;    // 世界频道聊天
+    TEAM_CHAT          = 2;    // 组队聊天
+    DS_CHAT            = 3;    // DS局内聊天
+    CUSTOMROOM_CHAT    = 4;    // 自建房聊天
+}
+
+enum DS_CHAT_SUBTYPE
+{
+    DS_CHAT_ALL        = 0;    // 所有人
+    DS_CHAT_TEAM       = 1;    // 组队聊天
+    DS_CHAT_PRIVATE    = 2;    // 私聊
+    DS_CHAT_SYSTEM     = 3;    // 系统
+    DS_CHAT_NEARBY     = 4;    // 附近的人
+    DS_CHAT_MARKSYSTEM = 5;    // 标记系统
+}
+
+enum MSG_STATUS
+{
+    CHAT_PASS     = 0;    // 通过时使用filtertext字段替换原信息
+    CHAT_SELF     = 1;    // 自见是仅发送方自己可见消息，接受者看不见消息
+    CHAT_PUNISH   = 2;    // 用户被处罚禁言（聊天场景）处罚情况下，直接提示用户被处罚无法发送消息
+    CHAT_REJECT   = 3;    // 拒绝就是拒绝发送消息或拒绝修改编辑提示发送或编辑失败，或者存在不合法的信息发送或编辑失败
+    CHAT_INVALID  = 4;    // 聊天各种参数校验不合法
+}
+
+message ChatMsgType
+{
+    int64 SendTime                = 1;      // 聊天发送时间，后台赋值
+    string Text                   = 2;      // 聊天文本内容
+    CHAT_TYPE ChatType            = 3;      // 聊天类型
+    string PlayerName             = 4;      // 发送者名字，后台赋值
+    int64 PlayerId                = 5;      // 发送者的PlayerId，后台赋值
+    string PortraitUrl            = 6;      // 发送者的头像Url，后台赋值
+    int32 Level                   = 7;      // 发送者的等级，后台赋值
+    int64 TeamId                  = 8;      // 队伍Id，如需要，后台赋值
+    string GameId                 = 9;      // 对局Id，局内聊天校验需要，前台赋值
+    DS_CHAT_SUBTYPE DsChatSubType = 10;     // 局内聊天子类型，用于局内区分，前台赋值
+    int64 EmojiId                 = 11;     // 发送表情Id    
+}
+
+// 聊天请求
+message ChatReq
+{
+    int64 ReceiverId            = 1;    // 接收者Id
+    repeated int64 PlayerIdList = 2;    // 接收者PlayerId列表
+    ChatMsgType ChatInfo        = 3;    // 聊天信息
+}
+
+// 聊天回包
+message ChatRsp
+{
+    int64 ReceiverId                      = 1;    // 接收者Id
+    repeated int64 PlayerIdList           = 2;    // 接收者PlayerId列表
+    ChatMsgType ChatMsg                   = 3;    // 聊天信息
+    int32 CDTime                          = 4;    // 聊天CD时间
+    MSG_STATUS MsgStatus                  = 5;    // 消息状态
+}
+
+// 聊天消息单条推送
+message ChatSync
+{
+    int64 ReceiverId    = 1;    // 接收者Id
+    ChatMsgType ChatMsg = 2;    // 聊天信息
+}
+
+// 聊天消息合并推送
+message ChatMergeSync
+{
+    repeated ChatMsgType ChatMsgList = 1;    // 聊天信息
+}
+
+// 聊天私聊离线消息合并推送
+message ChatPrivateOffMsgSync
+{
+    repeated ChatMsgType ChatMsgList = 1;    // 聊天信息
+}
+
+// 聊天各个频道的提示信息
+message ChatTipsSync
+{
+    int64 TipsId                    = 1;    // 提示文本Id
+    repeated string TipsArgsList    = 2;    // 提示动态参数
+}
+
+// 通知客户端，删除某个玩家的所有聊天信息
+message ClearPlayerChatSync
+{
+    int64 PlayerId = 1;                     // 要清除的玩家Id
+    int64 MsgId = 2;                        // 需要清理的消息Id,暂时不需要处理该字段，全清该玩家聊天信息
+}
+
+// 客户端上报修改语言类型请求
+message ClientChgLangTypReq
+{
+    string  LangType        = 1;    // 语言    
+}
+
+message ClientChgLangTypRsp
+{
+    string  LangType        = 1;    // 语言    
+}

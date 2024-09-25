@@ -1,0 +1,54 @@
+
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 客户端信息
+message ClientInfo{
+    string  Platform        = 1;    // 平台: IOS/Android/PC/Micro web/Micro client/Switch client/PS client/XBOX client/
+    string  Version         = 2;    // 客户端版本
+    string  Changelist      = 3;    // P4提交号
+    string  ClientIP        = 4;    // 客户端IP(客户端无法获取，服务器通过gateway填充)
+    string  ClientIPV6      = 5;    // 客户端IPV6地址（空）
+    string  Bundle          = 6;    // 包名
+    string  LangType        = 7;    // 语言    
+    string  GamePublicKey    = 8;    // DS和客户端加密通信的客户端公钥
+}
+
+// 账号信息
+message AccountInfo{
+    string  GameId          = 1;    // 分配的游戏ID
+    string  SdkVersion      = 2;    // 表示携带的SDK版本（空）
+    int32   AccountType     = 3;    // 账号类型: QQ Number/WeChat Openid/Baidu Account/QQ Openid/Visitor/Gopenid/Google Mail/Wegame Mail/...
+    int32   ChannelId       = 4;    // 登录渠道Id: 1 - 微信(WeChat), 2 - 手Q(mqq), 3 - 游客(Guest), 11 - 自建账号体系(selfAccount)
+    string  PortraitUrl     = 5;    // 账号头像链接（空）
+    int32   AceAccType      = 6;    // Ace账号类型
+}
+
+// 设备信息
+message DeviceInfo{
+    string  OS              = 1;    // 操作系统
+    string  SystemSoftware  = 2;    // 操作系统版本
+    string  SystemHardware  = 3;    // 终端机型
+    string  TelecomOper     = 4;    // 运营商
+    string  Network         = 5;    // WIFI/2G/3G/4G/5G
+    int32   ScreenWidth     = 6;    // 显示屏宽度
+    int32   ScreenHight     = 7;    // 显示屏高度
+    float   Density         = 8;    // 像素密度（空）
+    string  CpuHardware     = 9;    // cpu类型|频率|核数（空）
+    int32   Memory          = 10;   // 内存信息单位MB
+    string  GLRender        = 11;   // opengl render信息（空）
+    string  GLVersion       = 12;   // opengl版本信息（空）
+    string  DeviceId        = 13;   // 设备ID,安卓上报IMEI,IOS上报IDFA(报原始信息,不要加密)
+    string  OAID            = 14;   // 匿名设备标识符OAID,安卓上报(报原始信息,不要加密)
+    string  DistinctId      = 15;   // 访客ID
+}
+
+// 位置信息
+message LocationInfo{
+    string  CountryCode = 1;    // 国家码（空）
+    string  CityAscii   = 2;    // 城市码（空）
+    double  Latitude    = 3;    // 纬度（空）
+    double  Longitude   = 4;    // 经度（空）
+}

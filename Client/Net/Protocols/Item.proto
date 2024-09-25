@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+
+// 物品品质
+enum ITEM_QUALITY_TYPE
+{
+    ITEM_QUALITY_INVAILD    = 0;    // 无效品质类型
+    ITEM_QUALITY_GREY       = 1;    // 灰色品质
+    ITEM_QUALITY_BLUE       = 2;    // 蓝色品质
+    ITEM_QUALITY_PURPLE     = 3;    // 紫色品质
+    ITEM_QUALITY_YELLOW     = 4;    // 黄色品质
+    ITEM_QUALITY_RED        = 5;    // 红色品质
+}
+
+// 物品道具大类型
+enum ITEM_TYPE
+{
+    ITEM_INVAILD    = 0;    // 无效物品类型
+    ITEM_INSIDE     = 1;    // 局内道具
+    ITEM_PLAYER     = 2;    // 角色
+    ITEM_WEAPON     = 3;    // 武器
+    ITEM_VEHICLE    = 4;    // 载具
+    ITEM_PARAGLIDER = 5;    // 滑翔伞
+    ITEM_SOCIAL     = 6;    // 社交
+    ITEM_ACTIVITY   = 7;    // 活动
+    ITEM_OTHER      = 8;    // 其他
+    ITEM_MONEY      = 9;    // 货币
+
+    ITEM_EQUIPMENT  = 98;   // 装备
+    ITEM_CONSUMABLES= 99;   // 消耗品
+}
+
+message ItemInfoNode
+{
+    int64 ItemId        = 1;    // 物品Id
+    int64 ItemNum       = 2;    // 物品数量
+    int64 ExpireTime    = 3;    // 过期截止时间戳，UT0时间，为0是永久物品
+    int64 ItemUniqId    = 4;    // 个人物品唯一Id,比如用来区分两个物品Id相同，过期时间不同
+}
+
+enum SYN_ITEM_CHANGE_TYPE
+{
+    SYN_ITEM_CHANGE_ADD = 0;    // 增加物品
+    SYN_ITEM_CHANGE_DEL = 1;    // 删除物品
+}
+
+// 增量同步玩家物品数量增加或者减少
+message PlayerItemChangeSyn
+{
+    SYN_ITEM_CHANGE_TYPE ChangeType     = 1;    // 变化类型
+    repeated ItemInfoNode  ItemList     = 2;    // 变化物品的详细信息
+}
+
+// 物品道具使用类型
+enum ITEM_USE_TYPE
+{
+    ITEM_USE_INVAILD        = 0;        // 无效物品类型
+    ITEM_USE_DROPID         = 10001;    // 使用物品掉落Id
+    ITEM_USE_COMPOSE_ITEM   = 10002;    // 合成物品
+    ITEM_USE_ADD_GOLD_COF   = 10003;    // 使用金币加成
+    ITEM_USE_ADD_EXP_COF    = 10004;    // 使用经验加成
+    ITEM_USE_EXP            = 10005;    // 使用物品获得经验
+    ITEM_USE_PASS_TICKET_EXP = 10006;   // 使用物品获得通行证经验
+
+    ITEM_USE_CLINET_OPEN_UI = 20001;    // 客户端使用的类型
+}
+
+// 客户端请求使用物品
+message PlayerUseItemReq
+{
+    int64 ItemId        = 1;    // 物品Id
+    int64 UseItemNum    = 2;    // 使用数量
+    int64 ItemUniqId    = 3;    // 物品唯一Id
+}
+
+// 服务器应答使用物品返回协议
+message PlayerUseItemRsp
+{
+    int64 ItemId        = 1;    // 使用的物品Id
+}
+
+message PrizeItemNode
+{
+    int64 ItemId        = 1;    // 掉落物品Id
+    int64 ItemNum       = 2;    // 掉落物品数量
+}
+
+// 掉落奖励物品同步
+message DropPrizeItemSyn
+{
+    repeated PrizeItemNode PrizeItemList = 1;
+    map<int64, PrizeItemNode> DecomposeItemList = 2; // 有些物品分解转换成其他物品，奖励物品的Index-->映射分解的物品
+    int64 PopUpEffectId = 3;    // 弹窗效果Id
+}

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 请求gm指令列表
+message GetGmListReq
+{
+
+}
+
+message GmNode
+{
+    string ShowName = 1;    // 在客户端显示的Gm指令名称
+    string FuncName = 2;    // 执行函数名称
+    repeated string Examples = 3; // 参数举例说明，可能多个
+}
+
+// 返回gm指令列表
+message GetGmListRsp
+{
+    repeated GmNode GmListInfo = 1; // gm指令列表
+}
+
+// 请求执行一个gm指令
+message ExecuteOneGmCmdReq
+{
+    string FuncName = 1;            // 执行函数名称
+    repeated string Param = 2;      // 执行参数
+}
+
+// 请求执行一个gm指令返回结果
+message ExecuteOneGmCmdRsp
+{
+    string Result = 1;              // 输出的一些结果信息，考虑显示在gm指令界面某个显示位置上，字符串中\n用于换行输出
+}
+
+//下发QA GM指令
+message GMInstructionSync
+{
+    string CMD = 1;
+/*
+    Type
+    |-- 1:客户端脚本指令;
+    |-- 2:客户端虚幻函数(GM)指令；
+    |-- 3.DS GM指令；
+    |-- 4.CMDjson格式
+*/
+    int32 Type = 2;
+}
+
+//玩家是否连接到DS并加载完成
+message SceneLdCpltdQuerySync
+{
+    int32 Fd = 1;
+    string SrcAddr = 2;
+}
+
+//客户端加载完成
+message SceneLdCpltdResReq
+{
+    int32 Fd = 1;
+    string SrcAddr = 2;
+    string Msg = 3;
+}

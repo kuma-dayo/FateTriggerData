@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 接任务的来源
+enum TASK_SOURCE_TYPE
+{
+    TASK_SOURCE_TYPE_GM         = 0;        // Gm指令
+    TASK_SOURCE_TYPE_SEASON     = 1;        // 赛季任务
+    TASK_SOURCE_TYPE_LEVEL      = 2;        // 等级任务
+    TASK_SOURCE_TYPE_QUESTIONNAIRE = 3;     // 问卷任务
+    TASK_SOURCE_TYPE_LOGIN      = 4;        // 玩家登录时触发的一些任务
+}
+
+// 任务状态
+enum TASK_TYPE_STATE
+{
+    TASK_TYPE_DOING             = 0;        // 正在进行的任务
+    TASK_TYPE_FINISH            = 1;        // 已经完成的任务
+}
+
+// 客户端请求任务列表
+message PlayerAllTaskReq
+{
+}
+
+message TargetProcessNode
+{
+    int64 EventId       = 1;        // Key是任务的事件类型Id,参考Task.xslx,TargetEventCfg页签
+    int64 ProcessValue  = 2;        // 当前进度
+    int64 MaxProcess    = 3;        // 目标最大进度
+}
+message LbTaskInfoNode
+{
+    int32 TaskId        = 1;        // 任务Id
+    repeated TargetProcessNode TargetProcessList = 2; // 下标是多任务的的目标索引
+    TASK_TYPE_STATE State  = 3;     // 任务状态
+}
+// 服务器同步任务列表给客户端
+message PlayerAllTaskRsp
+{
+    repeated LbTaskInfoNode TaskList  = 1;    // 正在做的任务列表
+}
+
+// 请求接取任务
+message PlayerAcceptTaskReq
+{
+    int64 TaskId = 1;               // 任务Id
+}
+message PlayerAcceptTaskRsp
+{
+    int64 TaskId = 1;               // 任务Id
+}
+
+// 同步接受任务数据
+message PlayerTaskAcceptNotify
+{
+    repeated LbTaskInfoNode TaskList     = 1;    // 变化任务的详细信息
+}
+
+// 同步删除任务数据
+message PlayerTaskDeleteNotify
+{
+    repeated int64 TaskIdList = 1;  // 要删除的任务Id 
+}
+
+// 同步任务进度数据
+message LbProcessNode
+{
+    int64 EventId = 1;              // 目标事件Id
+    int64 Index = 2;                // 如果任务是多目标任务时，Index是哪个目标的下表索引
+    int64 ProcessValue = 3;         // 当前进度
+}
+message LbProcessNodeList
+{
+    repeated LbProcessNode ProcessNodeList = 1;    // 多目标任务的进度数据
+}
+message PlayerTaskProcessNotify
+{
+    map<int64, LbProcessNodeList> TargetProcessMap = 1; // key是任务Id, value是目标事件对应的当前进度
+}
+
+// 同步任务状态
+message PlayerTaskStateNotify
+{
+    map<int64, int64> TaskStateMap = 1;         // key是任务Id, value是任务状态
+}

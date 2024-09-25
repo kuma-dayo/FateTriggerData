@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 请求数据类型
+enum GUIDE_COND_TYPE
+{
+    OUTSIDE_GAME_GUIDE = 0;    // 局外新手引导
+}
+
+// 设置引导步骤请求
+message SetNewbieGuideConditionReq
+{
+    int64 GuideType = 1;    // 引导类型
+    int64 GuideStep = 2;    // 引导步骤
+}
+
+// 设置引导步骤返回
+message SetNewbieGuideConditionRsp
+{
+    int64 GuideType = 1;    // 引导类型
+    int64 GuideStep = 2;    // 引导步骤
+}
+
+// 新手指引数据请求
+message QueryNewbieGuideConditionReq
+{
+    int64 GuideType = 1;    // 引导类型
+}
+
+// 新手指引数据请求回包
+message QueryNewbieGuideConditionRsp
+{
+    int64 GuideType = 1;    // 引导类型
+    int64 GuideStep = 2;    // 数据结果
+}
+
+// 游戏ModeId场次查询
+message GetGameModeDataReq
+{
+    int32 ModeId = 1;    // 对应游戏模式
+}
+
+// 游戏ModeId场次查询回包
+message GetGameModeDataRsp
+{
+    int32 ModeId      = 1;    // 对应游戏模式
+    int64 GameModeCnt = 2;    // 对应游戏模式次数
+}
+
+// 玩家选择性别请求
+message PlayerChooseGenderReq
+{
+    int32 ItemId = 1;                           // 600030005 男， 600030006 女
+}
+
+// 玩家选择性别返回
+message PlayerChooseGenderRsp
+{
+    int32 ItemId = 1;                           // 
+}

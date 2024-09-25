@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 商品的刷新类型
+enum GOOD_REFRESH_TYPE
+{
+    GOOD_REFRESH_TYPE_INVALID   = 0;        // 不限购
+    GOOD_REFRESH_TYPE_DAY       = 1;        // 每日刷新
+    GOOD_REFRESH_TYPE_WEEK      = 2;        // 每周刷新
+    GOOD_REFRESH_TYPE_MONTH     = 3;        // 每月刷新
+    GOOD_REFRESH_TYPE_SEASON    = 4;        // 每赛季刷新
+    GOOD_REFRESH_TYPE_FOREVER   = 5;        // 永久限购
+}
+
+message GoodNode
+{
+    int64 GoodId = 1;           // 商品Id
+    int32 HadBuyCount = 2;      // 有效期内，已经购买的次数
+    int64 SellBeginTime = 3;    // 售卖的开始时间，0是永久售卖
+    int64 SellEndTime = 4;      // 售卖的结束时间，0是永久售卖
+}
+
+// 客户端请求某些商品的信息
+message PlayerShopGoodInfoListReq
+{
+    repeated int64 GoodIdList = 1;  // 请求的商品Id列表
+}
+
+// 客户端请求某些商品的信息应答
+message PlayerShopGoodInfoListRsp
+{
+    repeated GoodNode GoodList = 1; // 商品的详细信息列表
+}
+
+// 客户端请求购买某个商品
+message PlayerBuyGoodReq
+{
+    int64 GoodId = 1;               // 购买商品的Id
+    int64 GoodCount = 2;            // 购买商品的数量
+    bool NotDropPrizeItemSyn = 3;   // false，给获得奖励物品同步协议，默认false，true不给获得奖励物品同步协议
+    string ReferSource = 4;         // 购买来源，埋点数据时，使用，客户端赋值
+    string EnterShopSource = 5;     // 进入商城方式
+}
+
+// 客户端请求购买某个商品
+message PlayerBuyGoodRsp
+{
+    int64 GoodId = 1;               // 购买商品的Id
+    int32 HadBuyCount = 2;          // 有效期内，已经购买的次数
+}
+
+// 服务器通知客户端清理限购次数
+message PlayerShopClearLimitNotify
+{
+    GOOD_REFRESH_TYPE ClearType = 1;    // 要清理限购次数的类型
+}

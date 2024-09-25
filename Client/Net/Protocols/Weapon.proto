@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+
+// 选择使用的武器
+message SelectWeaponReq
+{
+    int64 WeaponId = 1;         // 选择的武器Id
+}
+
+// 选择使用的武器应答
+message SelectWeaponRsp
+{
+    int64 WeaponId = 1;         // 选择的武器Id
+}
+
+// 购买武器皮肤
+message BuyWeaponSkinReq
+{
+    int64 WeaponId = 1;         // 购买哪个武器的皮肤
+    int64 WeaponSkinId = 2;     // 购买武器的哪个皮肤
+}
+
+// 购买武器皮肤返回
+message BuyWeaponSkinRsp
+{
+    int64 WeaponId = 1;         // 购买哪个武器的皮肤
+    int64 WeaponSkinId = 2;     // 购买武器的哪个皮肤
+}
+
+// 选择武器的皮肤
+message SelectWeaponSkinReq
+{
+    int64 WeaponId = 1;         // 武器的Id
+    int64 WeaponSkinId = 2;     // 选择武器的哪个皮肤
+}
+
+// 选择武器的皮肤返回
+message SelectWeaponSkinRsp
+{
+    int64 WeaponId = 1;         // 武器的Id
+    int64 WeaponSkinId = 2;     // 选择武器的哪个皮肤
+}
+
+// 武器配件槽位
+enum WEAPON_SLOT_TYPE
+{
+    WEAPON_SLOT_INVAILD     = 0;    // 无效类型
+    WEAPON_SLOT_CHIP        = 1;    // 芯片
+    WEAPON_SLOT_MUZZLE      = 2;    // 枪口
+    WEAPON_SLOT_GRIP        = 3;    // 握把
+    WEAPON_SLOT_CLIP        = 4;    // 弹夹
+    WEAPON_SLOT_STOCK       = 5;    // 枪托
+    WEAPON_SLOT_SIGHT       = 6;    // 瞄具
+    WEAPON_SLOT_MAX         = 7;    // 最大值
+}
+
+// 获取武器配件和配件皮肤详细数据
+message WeaponPartSkinDetailReq
+{
+
+}
+
+message WeaponPartNode
+{
+    int64 WeaponId = 1;                 // 武器Id
+    repeated int64 PartIdList = 2;      // 该武器装备的配件Id
+}
+
+message WeaponPartSkinNode
+{
+    int64 WeaponSkinId = 1;             // 武器皮肤Id
+    repeated int64 PartSkinIdList = 2;  // 该皮肤装备的配件皮肤Id
+}
+
+// 获取武器配件和配件皮肤详细返回
+message WeaponPartSkinDetailRsp
+{
+    repeated WeaponPartNode WeaponPartList = 1;         // 武器装备的配件信息
+    repeated WeaponPartSkinNode WeaponPartSkinList = 2; // 武器皮肤装备的配件皮肤信息
+}
+
+// 武器装备配件
+message WeaponEquipPartReq
+{
+    int64 WeaponId = 1;             // 武器Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 装备槽位
+    int64 PartId = 3;               // 武器配件Id
+}
+
+// 武器装备配件返回
+message WeaponEquipPartRsp
+{
+    int64 WeaponId = 1;         // 武器Id
+    WEAPON_SLOT_TYPE Slot = 2;  // 装备槽位
+    int64 PartId = 3;           // 武器配件Id
+}
+
+// 武器卸载配件
+message WeaponUnEquipPartReq
+{
+    int64 WeaponId = 1;             // 武器Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 卸载槽位
+}
+
+// 武器卸载配件返回
+message WeaponUnEquipPartRsp
+{
+    int64 WeaponId = 1;             // 武器Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 卸载槽位
+}
+
+// 购买武器配件皮肤
+message BuyWeaponPartSkinReq
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    int64 WeaponPartSkinId = 2;     // 购买哪个武器配件皮肤Id
+}
+
+// 购买武器配件皮肤返回
+message BuyWeaponPartSkinRsp
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    int64 WeaponPartSkinId = 2;     // 购买哪个武器配件皮肤Id
+}
+
+// 武器皮肤装备配件皮肤
+message WeaponSkinEquipPartSkinReq
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 装备槽位
+    int64 PartSkinId = 3;           // 武器配件皮肤Id
+}
+
+// 武器皮肤装备配件皮肤返回
+message WeaponSkinEquipPartSkinRsp
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 装备槽位
+    int64 PartSkinId = 3;           // 武器配件皮肤Id
+}
+
+// 武器皮肤卸载配件皮肤
+message WeaponSkinUnEquipPartSkinReq
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 装备槽位
+}
+
+// 武器皮肤卸载配件皮肤返回
+message WeaponSkinUnEquipPartSkinRsp
+{
+    int64 WeaponSkinId = 1;         // 武器皮肤Id
+    WEAPON_SLOT_TYPE Slot = 2;      // 装备槽位
+}
+
+

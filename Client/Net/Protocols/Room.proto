@@ -1,0 +1,448 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 加入自建房来源
+enum CUSTOMROOM_JOIN_SRC
+{
+    JOIN_SRC_INVALID    = 0;            // 无效来源
+    JOIN_SRC_NORMAL     = 1;            // 普通加入房间
+    JOIN_SRC_INVITE     = 2;            // 邀请加入房间
+}
+
+// 自建房状态
+enum CUSTOMROOM_STATUS
+{
+    CUSTOMROOM_ST_IDLE       = 0;            // 空闲中
+    CUSTOMROOM_ST_GAME       = 1;            // 游戏中
+}
+
+enum CUSTOMROOM_PLAYER_STATE
+{
+    IN_ROOM = 0;                 // 在房间中
+    KICKED_OUT = 1;              // 被踢出
+    ROOM_DISBANDED = 2;          // 房间解散
+}
+
+//启动编辑器Ds同步
+message StartClientDsSync
+{
+    int32 Port = 1;
+    string Id = 2;
+    int32 ListenPort = 3;
+    string EditorBsProject = 4;
+    string UnrealInsights = 5;
+    string EditorBsPath = 6;
+    string ListenIp = 7;
+    string BattleEntry = 8;
+    int32 VipPort = 9;
+    string LocalGameAddr = 10;
+    int32 LocalListenTimeout = 11;
+}
+
+
+// Room信息结构
+message BaseRoomInfoMsg
+{
+    string CustomRoomName = 1;  // 自建房名
+    int64 CustomRoomId = 2;     // 自建房间Id
+    int64 MasterId = 3;         // 房主PlayerId
+    int32 CurPlayerNum = 4;     // 房间当前玩家数
+    int32 MaxPlayerNum = 5;     // 房间最大玩家数
+    int32 ConfigId = 6;         // 模式配置的ConfigId
+    int32 SceneId = 7;          // 地图Id
+    int32 TeamType = 8;         // 队伍类型
+    int32 View = 9;             // 视角
+    int32 CurObserverNum = 10; // 当前观战人数
+    int32 MaxObserverNum = 11; // 最大观战人数
+    int32 Status = 12;          // 房间状态
+    bool IsLock = 13;           // 是否为密码房
+    int32 DsGroupId = 14;       // 房主所在的DsGroupId，即选择的ds服务器环境
+    bool CanObserve = 15;       // 是否允许观战
+    int64 CreateTime = 16;      // 房间创建时间，用于显示，单位秒s
+}
+message RoomPlayerInfo
+{
+    int64 PlayerId = 1;
+    string PlayerName = 2;
+    int64 HeadId = 3;
+}
+message BaseTeamInfo
+{
+    map<int32, RoomPlayerInfo> PlayerInfoList = 1;     // 队伍中玩家列表<TeamPos, RoomPlayerInfo>
+}
+message FullRoomInfo
+{
+    BaseRoomInfoMsg BaseRoomInfo = 1;
+    map<int32, BaseTeamInfo> TeamList = 2;     // 队伍列表  <TeamId, TeamInfo>
+    repeated int64 ObserverIds = 3;            // 观战玩家Id列表
+    int32 TeamNumLimit = 4;                    // 队伍个数上限
+}
+
+// 房间信息请求, 暂用于重连后
+message CustomRoomInfoReq
+{
+    int64 CustomRoomId = 1;
+}
+
+message CustomRoomInfoRsp
+{
+    CUSTOMROOM_PLAYER_STATE CustomRoomPlayerState = 1;  // 玩家在房间中的状态
+    FullRoomInfo RoomInfo = 2;
+}
+
+/*
+* 拉取房间列表协议
+*/
+message RoomListReq
+{
+    int32 ModeId = 1;       // 模式Id
+    bool IsNoPasswd = 2;    // 是否排除密码房
+    int32 PosIndex = 3;     // 位置索引，分页用，从后台的列表的PosIndex位置开始，用于后续扩展
+    int32 PageSize = 4;     // 当前可以拉取的房间数，页大小
+}
+
+message RoomListRsp
+{
+    repeated BaseRoomInfoMsg RoomList = 1;
+}
+
+/*
+* 搜索房间，成功就返回SearchRoomRsp,失败也统一走ErrorCode
+*/
+message SearchRoomReq
+{
+    int64 CustomRoomId = 1;
+}
+
+message SearchRoomRsp
+{
+    int32 ErrorCode = 1;            // 0 成功，1不存在
+    BaseRoomInfoMsg RoomInfo = 2;   // 自建房基础信息 
+}
+
+message CreateRoomReq
+{
+    int32 ModeId = 1;       // 模式Id
+    int32 View = 2;         // 视角 1，3
+    int32 TeamType = 3;     // 队伍类型 1,2,4 solo,duo,squad
+    bool CanObserve = 4;   // 是否允许观战
+    string Passwd = 5;      // 房间密码
+    int32 TeamNumLimit = 6; // 队伍数上限
+    string CustomRoomName = 7;    // 房间名
+    int32 DsGroupId = 8;    // 房主所在的DsGroupId，即选择的ds服务器环境
+    int32 ConfigId = 9;     // 模式配置的ConfigId
+    int32 SceneId = 10;     // 地图Id
+}
+
+/*
+* Rsp失败如果需要有弹窗走SendErrorCode
+*/
+
+message CreateRoomRsp
+{
+    FullRoomInfo RoomInfo = 1;
+}
+
+message JoinRoomReq
+{
+    int64 CustomRoomId = 1;               // 房间Id
+    string Passwd = 2;                    // 房间密码
+    CUSTOMROOM_JOIN_SRC Source = 3;       // 加入房间来源
+}
+
+message JoinRoomRsp
+{
+    FullRoomInfo RoomInfo = 1;  // 完整房间信息
+}
+
+message JoinRoomSync
+{
+    int64 CustomRoomId = 1;
+    int32 TeamId = 2;       // 队伍Id
+    int32 Pos = 3;          // 在队伍的位置
+    RoomPlayerInfo PlayerInfo = 4; // 新加入玩家的摘要信息 
+}
+
+message ExitRoomReq
+{
+    int64 CustomRoomId = 1;
+}
+
+message PosChangeInfoBase
+{
+    int32 TeamId = 1;
+    repeated int64 PlayerPosChangeList = 2;   // 退出导致的其他玩家位置变化 索引即玩家Pos
+}
+
+// 考虑下是否有不允许退出的场景 如已经开始LoadDs
+message ExitRoomRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 房主退出通知
+message MasterExitRoomSync
+{
+    int64 CustomRoomId = 1;
+    int64 MasterPlayerId = 2;     // 新房主Id
+    PosChangeInfoBase PosChangeInfo = 3;
+}
+
+// 普通玩家退出通知
+message PlayerExitRoomSync
+{
+    int64 CustomRoomId = 1;
+    int64 PlayerId = 2;     // 退出玩家Id
+    PosChangeInfoBase PosChangeInfo = 3;
+}
+
+// 在双排四排更换位置，更换队伍内的位置请求
+message ChangePosReq
+{
+    int64 CustomRoomId = 1;
+    int32 TarPos = 2;       // 请求更换的位置
+}
+
+// 在双排四排更换位置，更换队伍内的位置回复
+message ChangePosRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+
+// 更换队伍内位置通知给房间内其他成员
+message ChangePosSync
+{
+    int64 CustomRoomId = 1;
+    int64 PlayerId = 2;
+    int32 Pos = 3;          // 在队伍中位置
+}
+
+// 更换队伍请求
+message ChangeTeamReq
+{
+    int64 CustomRoomId = 1;
+    int32 TarTeamId = 2;
+}
+
+// 更换队伍回包
+message ChangeTeamRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 更换队伍后同步消息给房间内其他成员
+message PlayerTeamChangeInfo
+{
+    int64 PlayerId = 1;     // Team或位置有变化的玩家Id
+    int32 TeamId = 2;       // 变化后的TeamId
+    int32 Pos = 3;          // 变化后在队伍中的位置
+}
+message ChangeTeamSync
+{
+    int64 CustomRoomId = 1;
+    repeated PlayerTeamChangeInfo TeamChangeInfo = 2;    // 队伍或位置有变化的信息列表
+}
+
+// 房主踢人请求
+message KickPlayerReq
+{
+    int64 CustomRoomId = 1;
+    int64 TarPlayerId = 2;  // 踢出的玩家Id
+}
+
+// 房主踢人回复
+message KickPlayerRsp
+{
+    int64 CustomRoomId = 1;
+    int64 TarPlayerId = 2;
+}
+
+// 通知被踢玩家
+message KickPlayerSync
+{
+    int64 CustomRoomId = 1;
+}
+
+/*
+*    ************************************************************
+*    注意：房主踢人后通知消息走普通玩家退出同步协议：
+*    PlayerExitRoomSync
+*    ************************************************************ 
+*/
+
+// 转移房主请求
+message TransMasterReq
+{
+    int64 CustomRoomId = 1;
+    int64 TarPlayerId = 2;
+}
+
+// 转移房主回复
+message TransMasterRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 转移房主通知，给房间其他成员
+message TransMasterSync
+{
+    int64 CustomRoomId = 1;
+    int64 NewMasterId = 2;  // 新的房主PlayerId
+}
+
+// 邀请发送
+message InviteReq
+{
+    int64 CustomRoomId = 1;
+    int64 InviteeId = 2;
+}
+
+// 邀请发送回包
+message InviteRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 邀请发送至被邀请玩家
+// 如果玩家同意的话走JoinRoom协议 不需要和邀请者同队伍 不需要给邀请者通知
+message InviteSync
+{
+    int64 InviterId = 1;    // 邀请人的PlayerId
+    int64 CustomRoomId = 2;
+}
+
+
+// 解散房间请求
+message DissolveRoomReq
+{
+    int64 CustomRoomId = 1;
+}
+
+// 解散房间回复
+message DissolveRoomRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 房间解散通知 需要排除房主
+message DissolveRoomSync
+{
+    int64 CustomRoomId = 1;
+}
+
+// 房主点击开始游戏请求
+message StartGameReq
+{
+    int64 CustomRoomId = 1;
+}
+
+/*
+* StartGameRsp只返回开局是否成功
+* Ds拉起后通知客户端连接Ds走DsMetaSync
+*/
+message StartGameRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 房主点击开始游戏后，通知房间成员对局准备开始了
+/*
+* 这个协议可能会收到多次
+* 第一次收到表示通知房间成员进入“等待”开局界面
+* 第二次收到表示在开局时失败了，需要返回房间界面或者其他界面
+* 开局成功，则走已有的同步Ds连接信息协议：DsMetaSync
+*/
+message StartGameSync
+{
+    int64 CustomRoomId = 1;   // 自建房Id
+    int32 ErrorCode = 2;      // 为0 则表示未出现错误, 非0对应的错误码在ErrorCode配置表
+}
+
+// 自动跑测时的加入房间
+message AutoTestJoinRoomReq
+{
+    int32 ModeId = 1;       // 模式Id
+    int32 View = 2;         // 视角1, 2, 3
+    int32 TeamType = 3;     // 队伍类型1, 2, 3
+    int32 DsGroupId = 4;    // 房主所在的DsGroupId，即选择的Ds服务器环境
+    int32 ConfigId = 5;     // 模式配置的ConfigId
+    int32 SceneId = 6;      // 地图Id
+    int32 MaxPlayerNum = 7; // 最大人数，开局
+    int32 TimeToStart = 8;  // 房间存在当前时间后自动开局
+    int32 RoomId = 9;       // 房间Id 必须保证为正数
+    int32 TeamNumLimit = 10; 
+    string ParentDSExtParams = 11; // 父DS扩展命令行参数，仅用于DS Fork模式时，父DS扩展命令行参数
+    string DSExtParams = 12;       // DS扩展命令行参数，非DS Fork模式 和 DS Fork模式下 子DS使用 的扩展命令行参数
+}
+
+// 通知玩家自建房名称变化
+message CustomRoomNameChangeSync
+{
+    int64 CustomRoomId = 1;     // 自建房Id
+    string CustomRoomName = 2;  // 变化后的自建房名字
+}
+
+// 切换到观战位协议
+message ChangeToObserverReq
+{
+    int64 CustomRoomId = 1;     // 自建房Id
+}
+
+message ChangeToObserverRsp
+{
+    int64 CustomRoomId = 1;     // 自建房Id
+    int32 Pos = 2;              // 玩家所处的观战位置
+}
+
+// 从观战位切到战斗协议
+message ChangeToFighterReq
+{
+    int64 CustomRoomId = 1;     // 自建房Id
+    int32 TarTeamId = 2;        // 指定的队伍
+}
+
+message ChangeToFighterRsp
+{
+    int64 CustomRoomId = 1;
+    int32 TeamId = 2;           // 切换后的队伍Id
+    int32 Pos = 3;              // 切换后的
+}
+
+// 队伍中和观战位切换的同步，一般都伴随队伍和观战位的变化
+message ObserverChangeSync
+{
+    int64 CustomRoomId = 1;
+    int64 PlayerId = 2;
+    repeated int64 ObserverIds = 3;           // 观战位变化同步 索引为观战位，数值为PlayerId
+    PosChangeInfoBase TeamChangeInfo = 4;   // 队伍内变化同步
+}
+
+// 加入到房间
+message JoinRoomObserverSync
+{
+    int64 CustomRoomId = 1;
+    int32 Pos = 2;                    // 在观战中的位置
+    RoomPlayerInfo PlayerInfo = 3;    // 新加入玩家的摘要信息
+}
+
+// 观战位玩家请求退出房间
+message ObserverExitRoomReq
+{
+    int64 CustomRoomId = 1;
+}
+
+message ObserverExitRoomRsp
+{
+    int64 CustomRoomId = 1;
+}
+
+// 观战位玩家退出同步
+message ObserverExitSync
+{
+    int64 CustomRoomId = 1;
+    int64 ExitPlayerId = 2;
+    repeated int64 ObserverIds = 3;     // 观战位变化同步 索引为观战位，数值为PlayerId
+}

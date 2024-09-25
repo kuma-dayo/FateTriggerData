@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+//查询公共字段
+message DivisionQueryParam
+{
+    int32 SeasonId = 1;         //赛季Id
+    int32 RankPlayMapId = 2; //RankConfig.xlsx表格中RankPlayMapListConfig的枚举模式Id
+}
+
+// 段位奖励领取状态枚举
+enum EDivisionRewardStatus
+{
+    Invalid = 0;                                 // 非法类型
+    Locked = 1;                                 //未解锁
+    Unobtained  = 2;                        // 可领取
+    Obtained      = 3;                        // 已获得
+}
+
+//段位奖励Id和状态
+message DivisionRewardIdAndStatus
+{
+    int32 DivisionId = 1;                                               //段位Id
+    EDivisionRewardStatus Status = 2;              //奖励领用状态
+}
+
+//段位分布信息请求
+message DivisionDistributionInfoReq
+{
+    DivisionQueryParam QueryParam = 1; 
+}
+
+//段位分布信息回复
+message DivisionDistributionInfoRes
+{
+    DivisionQueryParam QueryParam = 1; 
+    repeated int32 Distribution = 2;  //每个段位的人数
+    int32  ErrCode  = 3; 
+}
+
+//个人段位信息请求
+message PersonalDivisionInfoReq
+{
+    DivisionQueryParam QueryParam = 1; 
+}
+
+//个人段位信息回复
+message PersonalDivisionInfoRes
+{
+    DivisionQueryParam QueryParam = 1; 
+    int32 DivisionId = 2; 
+    int32 WinPoint = 3; 
+    repeated DivisionRewardIdAndStatus DivisionRewardIdAndStatus = 4; //奖励状态
+    int32  ErrCode  = 5; 
+}
+
+//个人段位排名信息请求
+message PersonalDivisionRankInfoReq
+{
+    DivisionQueryParam QueryParam = 1; 
+}
+
+//个人段位排名信息回复
+message PersonalDivisionRankInfoRes
+{
+    DivisionQueryParam QueryParam = 1; 
+    int32 DivisionId = 2; 
+    int32 DivisionRankRatio=3;               //超过xx%的玩家（按照小段计算，各段位权重数值同段位天梯图，精确到小数点0位，向下取整）
+    int32 DivisionRank = 4;                      //超限者段位显示实时排名（分端）
+    int32  ErrCode  = 5; 
+}
+
+//领用奖励请求
+message DivisionRewardReq
+{
+    DivisionQueryParam QueryParam = 1; 
+    int32 DivisionId = 2; 
+}
+ 
+//领用奖励回复
+message DivisionRewardRes
+{
+    DivisionQueryParam QueryParam = 1;               
+    DivisionRewardIdAndStatus RewardIdStatus = 2;
+    int32  ErrCode  = 3; 
+}
+

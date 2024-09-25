@@ -1,0 +1,93 @@
+syntax = "proto3";
+import "Item.proto";
+option go_package="./go;pb";
+package pb;
+
+// 获取已经开始的奖池列表
+message PlayerGetStartLotteryReq
+{
+
+}
+message LotteryInfoNodeNode
+{
+    int64 PrizePoolId = 1;          // 奖池Id
+    int64 BeginTime = 2;            // 奖池开始时间 0 永久
+    int64 EndTime = 3;              // 奖池结束时间 0 永久
+}
+message PlayerGetStartLotteryRsp
+{
+    repeated LotteryInfoNodeNode PrizePoolList = 1;
+}
+
+// 获取某个奖池10次，50次的数据
+message PlayerLotteryInfoReq
+{
+    int64 PrizePoolId = 1;      // 奖池Id
+}
+
+message PlayerLotteryInfoRsp
+{
+    int64 PrizePoolId = 1;      // 奖池Id
+    int32 BaoDiOneCount = 2;    // 50次已经抽过多少次
+    int32 DayCount = 3;         // 今日抽取多少次
+}
+
+// 抽奖，单抽，十连抽
+message PlayerLotteryReq
+{
+    int64 PrizePoolId = 1;      // 奖池Id
+    int32 Count = 2;              // 抽奖次数，只有1和10，服务器会校验数值
+}
+message PlayerLotteryRsp
+{
+    int64 PrizePoolId = 1;      // 奖池Id
+    int32 Count = 2;              // 抽奖次数，只有1和10，服务器会校验数值
+}
+
+// 请求某个奖池的概率数值
+message PlayerGetPrizePoolRateReq
+{
+    int64 PrizePoolId = 1;  // 奖池Id
+}
+
+message ItemQualityRateNode
+{
+    ITEM_QUALITY_TYPE Quality = 1;  // 物品的品质
+    int32 Rate = 2;     // 每个品质的概率基数
+}
+message PlayerGetPrizePoolRateRsp
+{
+    int64 PrizePoolId = 1;  // 奖池Id
+    repeated ItemQualityRateNode QualityRateList = 2;    // 各个物品的概率
+}
+
+// 抽奖记录类型
+enum LOTTERY_RECORD_TYPE
+{
+    LOTTERY_RECORD_INVAILD      = 0;    // 无效类型
+    LOTTERY_RECORD_TIME_LIMIT   = 1;    // 有时限的
+    LOTTERY_RECORD_FOREVER      = 2;    // 永久的，常住的
+}
+// 查看抽奖记录
+message PlayerGetLotteryRecordReq
+{
+    LOTTERY_RECORD_TYPE RecordType = 1;    // 请求的记录类型
+}
+
+message PrizeDecomposNode
+{
+    int64 PrizeItemId = 1;          // 抽奖获得的物品Id
+    int32 PrizeItemNum = 2;         // 抽奖获得的物品数量
+    int64 DecomposItemId = 3;       // 物品分解后的物品Id
+    int32 DeconmposItemNum = 4;     // 物品分解后的总数量
+}
+message LotteryRecordNode
+{
+    int64 OpTime = 1;                               // 抽取奖品的时间
+    repeated PrizeDecomposNode PrizeItemList = 2;   // 单抽1条记录，10抽，会有10个节点数据
+}
+message PlayerGetLotteryRecordRsp
+{
+    repeated LotteryRecordNode RecordList = 1; // 抽奖记录列表
+    LOTTERY_RECORD_TYPE RecordType = 2;    // 请求的记录类型
+}

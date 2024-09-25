@@ -1,0 +1,35 @@
+--PreLoginNotice.xlsx
+Cfg_PreLoginNoticeConfig = "PreLoginNoticeConfig"
+G_CfgName2MainKey = G_CfgName2MainKey or {}
+G_CfgName2MainKey[Cfg_PreLoginNoticeConfig] = "Id"
+Cfg_PreLoginNoticeConfig_P_MainKey = "Id"
+Cfg_PreLoginNoticeConfig_P = {
+    Id = "Id",
+    ListName = "ListName",
+    Title = "Title",
+    Priority = "Priority",
+    SubHeading1 = "SubHeading1",
+    Content1 = "Content1",
+    SubHeading2 = "SubHeading2",
+    Content2 = "Content2",
+    SubHeading3 = "SubHeading3",
+    Content3 = "Content3",
+    SubHeading4 = "SubHeading4",
+    Content4 = "Content4",
+    SubHeading5 = "SubHeading5",
+    Content5 = "Content5",
+    SubHeading6 = "SubHeading6",
+    Content6 = "Content6",
+    SubHeading7 = "SubHeading7",
+    Content7 = "Content7",
+    SubHeading8 = "SubHeading8",
+    Content8 = "Content8",
+    SubHeading9 = "SubHeading9",
+    Content9 = "Content9",
+    SubHeading10 = "SubHeading10",
+    Content10 = "Content10",
+    BeginTime = "BeginTime",
+    BeginTimeTimestamp = "BeginTimeTimestamp",
+    EndTime = "EndTime",
+    EndTimeTimestamp = "EndTimeTimestamp",
+}

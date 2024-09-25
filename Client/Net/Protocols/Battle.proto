@@ -1,0 +1,424 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+//赛季武器数据
+message SeasonWeaponDataReq
+{
+    int32 SeasonId = 1;
+    int64 WeaponId = 2;
+}
+message SeasonWeaponDataRsp
+{
+    int32 SeasonId = 1;
+    int64 WeaponId = 2;
+    int32 KnockDownNum = 3;
+    int32 KillNum = 4;
+    int32 HeadShotNum = 5;
+    float TotalDamage = 6;
+    int32 PossessedTime = 7;
+}
+
+//生涯武器数据
+message CareerWeaponDataReq
+{
+    int64 WeaponId = 1;
+}
+message CareerWeaponDataRsp
+{
+    int64 WeaponId = 1;
+    int32 KnockDownNum = 2;
+    int32 KillNum = 3;
+    int32 HitHeadNum = 4;
+    int64 TotalInjury = 5;
+    int64 Duration = 6;
+}
+
+//赛季英雄数据
+message SeasonHeroDataReq
+{
+    int64 SeasonId = 1;
+    int64 HeroId = 2;
+}
+message SkillDataBase
+{
+    int64 SkillId = 1;
+    int64 TotalInjury = 2;
+    int64 HealAmount = 3;
+    int32 KillNum = 4;
+    int32 KnockDownNum = 5;
+    int32 UsesNum = 6;
+    int64 Duration = 7;
+}
+message SeasonHeroDataRsp
+{
+    int64 HeroId = 1;
+    int32 KillNum = 2;
+    int32 KnockDownNum = 3;
+    repeated SkillDataBase SkillsData = 4;
+}
+
+//生涯英雄数据
+message CareerHeroDataReq
+{
+    int64 SeasonId = 1;
+    int64 HeroId = 2;
+}
+message CareerHeroDataRsp
+{
+    int64 HeroId = 1;
+    int32 KillNum = 2;
+    int32 KnockDownNum = 3;
+    repeated SkillDataBase SkillsData = 4;
+}
+
+//赛季载具数据
+message VehicleDataReq
+{
+    int64 SeasonId = 1;
+    int64 VehicleId = 2;
+}
+message VehicleDataRsp
+{
+    int64 VehicleId = 1;
+    int64 KillNum = 2;
+    int64 KnockDownNum = 3;
+    int64 Duration = 4;
+}
+
+//生涯载具数据
+message CareerVehicleDataReq
+{
+    int64 VehicleId = 1;
+}
+message CareerVehicleDataRsp
+{
+    int64 VehicleId = 1;
+    int64 KillNum = 2;
+    int64 KnockDownNum = 3;
+    int64 Duration = 4;
+}
+
+//赛季玩家个人战斗数据
+message SeasonBattleDataReq
+{
+    int32 SeasonId = 1;
+    int32 TeamType = 2;     // 队伍类型 1, 2, 4单双四
+    int32 View = 3;         // 视角 1，3 第一第三人称
+    int64 QueryPlayerId = 4;     // 请求的PlayerId nil为查询玩家自己
+}
+
+message DivisionInfoBase
+{
+    int32 DivisionId = 1;          // 段位Id   取所有模式最大值
+    int32 WinPoint = 2;            // 胜点
+}
+message MaxValBase
+{
+    int32 Val = 1;
+    int64 Time = 2;     // Max达成时间
+}
+//平均和Kda用下发的数据计算
+message SeasonBattleDataRsp
+{
+    int32 SeasonId = 1;
+    int32 TeamType = 2;
+    int32 View = 3;
+    MaxValBase MaxKill = 4;
+    MaxValBase MaxDamage = 5;
+    MaxValBase MaxAssist = 6;            // 最大助攻
+    MaxValBase MaxRescue = 7;            // 最大救援
+    MaxValBase MaxSurvivalTime = 8;      // 最大存活时间
+    MaxValBase MaxHeal = 9;              // 最大治疗量
+    MaxValBase MaxMoveDis = 10;          // 最大移动距离
+    int64 TotGameTime = 11;         // 战斗时长
+    int32 RecordsNum = 12;          // 战斗场次
+    int32 WinNum = 13;              // 胜利次数
+    int32 Top5Num = 14;             // 前5数
+    int32 TotKill = 15;
+    int64 TotSurvivalTime = 16;
+    int64 TotDamage = 17;
+    float TotHeadShotRate = 18;     // 爆头率
+    int32 TotAssist = 19;           // 助攻总数
+    int64 TotMoveDis = 20;          // 移动距离总数
+    int32 TotRescue = 21;           // 救援总数
+    int64 TotHeal = 22;             // 总治疗量
+    int32 TotLike = 23;             // 总点赞
+    int32 TotDeath = 24;            // 总死亡数 查询其他玩家时屏蔽返回0
+    int32 TotHeadShot = 25;         // 总爆头数
+    int64 QueryPlayerId = 26;       // 查询的玩家PlayerId
+    DivisionInfoBase DivisionInfo = 27; // 段位数据
+}
+
+//赛季战斗统计
+message StatisticsReq
+{
+}
+
+message StatisticsBase
+{
+    int32 TotKill = 1;      // 总击杀
+    int32 WinNum = 2;       // 总胜场
+    int32 TotRating = 3;    // 总积分
+}
+//赛季战斗统计
+message StatisticsRsp
+{
+    int32 SeasonId = 1;                             // 赛季Id
+    map<int32, StatisticsBase> Statistics = 2;      // 统计数据
+}
+
+//-----------------------结算--------------------------
+
+//Br玩家个人结算
+message GamePlayerSettlementSync
+{
+    int32 HeroTypeId = 1;
+    int32 PlayerKill = 2;
+    int32 KnockDown = 3;
+    int32 RescueTimes = 4;
+    int32 RespawnTimes = 5;
+    int32 RemainingPlayers = 6;
+    int32 PlayerAssist = 7;
+    int32 PlayerDamage = 8;
+    int32 RemainingTeams = 9;
+    float PlayerSurvivalTime = 10;
+    bool bIsTeamOver = 11;
+    bool bIsTeamWinner = 12;
+    bool bRespawnable = 13;
+    uint32 PosInTeam = 14;
+    int32 SkinId = 15;
+    string PlayerName = 16;
+}
+
+enum SettlementRewardSrcType 
+{
+    SettlementRewardSrcTypeCoin = 0;               // 结算增加金币
+    SettlementRewardSrcTypeLevelUp = 1;            // 结算增加经验
+    SettlementRewardSrcTypeGrowthMoney = 2;        // 剩余成长货币
+}
+
+message SettlementRewardItem
+{
+    int64 ItemId = 1;
+    int64 ItemCount = 2;
+    SettlementRewardSrcType RewardType = 3;
+}
+
+//Br队伍结算
+message GameTeamSettlementSync
+{
+    int32 RemainingPlayers = 1;
+    int32 TeamId = 2;
+    int32 RemainingTeams = 3;
+    bool bIsGameOver = 4;
+    string GameId = 5;
+    map<int64, GamePlayerSettlementSync> PlayerArray = 6;
+    int32 TeamRank = 7;
+    int32 TeamCount = 8;
+
+    map<int64, int64> Task2AchieveIds = 9;          // 任务成就映射map, key为任务id，value为成就id
+    map<int64, int64> CompletedTasks = 10;          // 当前对局完成的任务,key为任务id，value为任务来源
+    int32 PassLevel = 11;                           // 通行证等级
+    int32 DeltaPassLevel = 12;                      // 通行证变化等级数，如 +1，+2
+    int32 PassExp = 13;                             // 通行证经验
+    int32 DeltaPassExp = 14;                        // 通行证变化的经验，如 +20
+
+    int32 Level = 15;                               // 当前等级
+    int32 Experience = 16;                          // 当前经验
+    int32 DeltaExperience = 17;                     // 增量经验
+
+    GameplayCfgBase GameplayCfg = 18;               // 当前游戏模式基础数据
+
+    int32 PlayModeId = 19;                          //玩法模式ID，用以区分是否为排位/匹配/非积分模式
+    int32 OldDivisionId = 20;                       //上一个段位Id
+    int32 NewDivisionId = 21;                       //当前段位Id
+    int32 WinPoint = 22;                            //当前胜点
+    int32 DeltaWinPoint=23;                         //变化的胜点
+    int32 DeltaRankRating=24;                       //变化的排名分 
+    int32 PerformanceRating = 25;                   //当前的表现分
+    string GradeName = 26;                          //评价: C -> B -> A -> S
+    int64 OwnerId = 27;                             // 不为0时，标识为自建房，为0则为非自建房
+    // map<int64, int64> RewardItems = 28;             // 结算获取的奖励物品：Key为ItemId, Value为数量
+    repeated SettlementRewardItem RewardItems = 28;     // 结算获取奖励物品
+
+    int32 GrowthGoldMoney = 29;                     // 成长转换金币值
+    int32 GoldMoneyBase = 30;                       // 对局结算基础金币值
+    int32 GoldMoneyCofTotal = 31;                   // 对局结算加成之后的金币值
+}
+
+//Br战斗结算
+message GameBattleSettlementSync
+{
+    int32 WinnerTeamId = 1;
+    string GameId = 2;
+}
+
+//团竞、死斗、征服模式结算
+message GameCampPlayerSettlementBase
+{
+    int32 PlayerKill = 1;
+    int32 PlayerDeath = 2;
+    int32 PlayerAssist = 3;
+    int32 PlayerDamage = 4;
+    int32 PlayerScore = 5;
+    int32 PosInTeam = 6;
+    int32 HeroTypeId = 7;
+    int32 CampId = 8;
+    int32 TeamId = 9;
+    int64 PlayerId = 10;
+    string PlayerName = 11;
+    float KDA = 12;
+    int32 ConquestCount = 13;
+}
+message GameCampSettlementSync
+{
+    map<int64, GameCampPlayerSettlementBase> PlayerArray = 1;  //队伍中所有玩家的计算
+    int32 TeamRank = 2;                                        //队伍排名(和队伍所在阵营一致)
+    string GameId = 3;                                         //GameId
+    int32 TeamCount = 4;                                       //所有队伍个数
+
+    GameplayCfgBase GameplayCfg = 5;
+    int32 Level = 6;                                        // 当前等级
+    int32 Experience = 7;                                   // 当前经验
+    int32 DeltaExperience = 8;                              // 增量经验
+}
+
+//message CampSettlementSync
+//{
+//    GameCampTeamSettlementBase TeamSettlement = 1;
+//    GameplayCfgBase GameplayCfg = 2;
+//    int32 Level = 3;                                // 当前等级
+//    int32 Experience = 4;                           // 当前经验
+//    int32 DeltaExperience = 5;                      // 增量经验
+//}
+
+//-----------------------战绩--------------------------
+
+//战绩请求
+message RecordsReq
+{
+    int32 RecordIdx = 1;
+    int32 SeasonId = 2;
+    int64 PlayerId = 3;     // 查看玩家的ID
+}
+
+//模式
+message GameplayCfgBase
+{
+    int32 GameplayId = 1;
+    int32 LevelId = 2;
+    int32 View = 3;
+    int32 TeamType = 4;
+    int32 ModeId = 5;
+    int32 SceneId = 6;
+}
+message RecordGeneralData
+{
+    int64 HeroId = 1;
+    int32 Rank = 2;
+    int64 SkinId = 3;
+    float SurvivalTime = 4;
+    GameplayCfgBase GameplayCfg = 5;
+    int32 KillNum = 6;
+    int32 Time = 7;
+}
+message RecordBase
+{
+    string GameId = 1;
+    RecordGeneralData GeneralData = 2;
+}
+//战绩请求回包
+message RecordsRsp
+{
+    repeated RecordBase Records = 1;    // 战绩数组
+    int32 SeasonId = 2;                 // 赛季Id
+    int64 PlayerId = 3;                 // 查看玩家的ID
+}
+
+message DetailRecordReq
+{
+    int32 SeasonId = 1;
+    string GameId = 2;
+    int64 PlayerId = 3;                 // 要查看的玩家的ID
+}
+
+message BrDetailRecordBase {
+    string GameId = 1;
+    int32 TeamCount = 2;
+    int32 TeamRank = 3;
+    map<int64, GamePlayerSettlementSync> PlayerMap = 4;
+}
+
+message CampDetailRecordBase {
+    string GameId = 1;
+    int32 TeamCount = 2;
+    int32 TeamRank = 3;
+    map<int64, GameCampPlayerSettlementBase> PlayerMap = 4;
+}
+
+//详细战绩回包
+message DetailRecordBase
+{
+    oneof settlement_type {
+        BrDetailRecordBase BrSettlement = 1;            //Br模式详细战绩
+        CampDetailRecordBase CampSettlement = 2;      //团竞、死斗、征服模式详细战绩
+    } 
+}
+message DetailRecordRsp
+{
+    DetailRecordBase DetailRecord = 1;
+    int64 PlayerId = 2;                     // 要查看的玩家的ID
+}
+
+// 单条战绩查询
+message SingleRecordReq
+{
+    int32 SeasonId = 1;
+    string GameId = 2;
+}
+
+message SingleRecordRsp
+{
+    int32 SeasonId = 1;
+    string GameId = 2;
+    RecordBase GenneralRecord = 3;          // 概要战绩
+    DetailRecordBase DetailRecord = 4;      // 详细战绩
+}
+
+//-----------------------设置--------------------------
+
+// 设置基础结构
+message SettingBase
+{
+    int32 Value_Int = 1;
+    float Value_Float = 2;
+    bool Value_Bool = 3;
+    repeated int32 Value_IntArray = 4;
+}
+// 存储玩家设置
+message SaveSettingsReq
+{
+    map<string, SettingBase> ChangedSettings = 1;
+    repeated string DelSettings = 2;
+}
+message SaveSettinsRsp
+{
+}
+
+// 请求存储的玩家设置
+message GetSettingsReq
+{
+}
+
+// 请求存储的玩家设置回包
+message GetSettingsRsp
+{
+    map<string, SettingBase> Settings = 1;
+}
+
+// 玩家设置到大厅状态 当前只允许结算状态时主动设置
+message SetLobbyStatusReq
+{
+}

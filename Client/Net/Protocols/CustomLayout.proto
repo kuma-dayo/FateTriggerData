@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 移动端自定义布局
+
+message LayoutBase
+{
+    float PositionX = 1;
+    float PositionY = 2;
+    float Scale = 3;
+    float RenderOpacity = 4;
+    bool IsBan = 5;
+}
+
+message SaveLayoutBase
+{
+    map<string, LayoutBase> ChangedLayouts = 1;     // 需要保存的变化的布局
+    string LayoutGroupName = 2;                     // 布局组昵称
+}
+
+// 保存自定义布局修改
+message SaveCustomLayoutReq
+{
+    map<int32, SaveLayoutBase> SaveLayoutGroups = 1;    // 布局组
+    repeated int32 ResetGroupList = 2;                  // 重置的布局组数组
+}
+
+message SaveCustomLayoutRsp
+{
+}
+
+
+// 自定义布局请求
+message GetCustomLayoutReq
+{
+}
+
+message LayoutGroupBase
+{
+    map<string, LayoutBase> ChangedLayouts = 1;     // 存储的布局修改信息
+    string LayoutGroupName = 2;                     // 布局组昵称
+}
+message GetCustomLayoutRsp
+{
+    map<int32, LayoutGroupBase> LayoutGroups = 1;   // 修改的布局组，不连续，没有保存过的可能没有
+}

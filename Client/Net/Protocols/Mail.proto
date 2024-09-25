@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+// 邮件页签类型
+enum MAIL_PAGE_TYPE
+{
+    MAIL_PAGE_INVAILD = 0;  // 无效邮件类型
+    MAIL_PAGE_SYS   = 1;    // 系统
+    MAIL_PAGE_GIFT  = 2;    // 礼物
+    MAIL_PAGE_MSG   = 3;    // 消息
+}
+
+message AppendInfo
+{
+    int64 ItemId = 1;   // 物品Id
+    int64 ItemNum = 2;  // 物品数量
+}
+message MailInfoNode
+{
+    int32 MailTemplateId        = 1;        // 邮件模板Id
+    int64 SendPlayerId          = 2;        // 发件人角色Id,0,代表是服务器发送
+    string SendPlayerName       = 3;        // 发送人名称，系统发送时，读配置
+    int32 SendHeadId            = 4;        // 头像Id,系统发送时，读配置
+    int64 ExpireTime            = 5;        // 过期时间
+    int64 ReceiveTime           = 6;        // 接收邮件的时间戳
+    bool  ReadFlag              = 7;        // true已读，false未读
+    int64 MailUniqId            = 8;        // 邮件唯一Id
+    repeated AppendInfo AppendList = 9;     // 附件列表
+    bool  ReceiveAppend         = 10;       // true已经领取附件，false未领取
+    string Title                = 11;       // 邮件自定义标题
+    string Context              = 12;       // 邮件自定义内容
+    int64 TitleTextId           = 13;       // 邮件标题文本Id,大于0优先用该文本替换
+    int64 ContextTextId         = 14;       // 邮件内容文本Id,大于0优先用该文本替换
+    string CustomData           = 15;       // 业务自定义数据
+}
+
+// 客户端请求邮件的详细信息
+message PlayerMailInfoListReq
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+}
+
+// 客户端请求邮件的详细信息
+message PlayerMailInfoListRsp
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated MailInfoNode MailInfoList = 2;      // 邮件附件的唯一Id
+}
+
+// 增加邮件同步信息
+message PlayerAddMailSyn
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    MailInfoNode  MailInfo     = 2;         // 增加的邮件信息
+}
+
+// 已读邮件
+message PlayerReadMailReq
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 邮件附件的唯一Id
+}
+
+// 已读邮件应答
+message PlayerReadMailRsp
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 已读成功邮件附件的唯一Id
+}
+
+// 领取附件
+message PlayerGetAppendReq
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 领取邮件附件的唯一Id
+}
+
+// 领取附件的返回
+message PlayerGetAppendRsp
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 领取邮件附件成功的唯一Id
+}
+
+// 请求删除邮件
+message PlayerDeleteMailReq
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 邮件附件的唯一Id
+}
+
+// 请求删除邮件应答
+message PlayerDeleteMailRsp
+{
+    MAIL_PAGE_TYPE  PageType = 1;
+    repeated int64 MailUniqIdList = 2;      // 已经删除邮件附件的唯一Id
+}

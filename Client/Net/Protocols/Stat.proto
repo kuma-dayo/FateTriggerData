@@ -1,0 +1,23 @@
+syntax = "proto3";
+import "Achievement.proto";
+import "Vehicle.proto";
+option go_package="./go;pb";
+package pb;
+
+
+enum PLAYER_STAT_TYPE
+{
+    STAT_INVALID                = 0;        
+    STAT_BATTLE_MODE            = 1;        // 对局模式统计数据
+}
+
+message StatItem
+{
+    map<string, int32>  Dict = 1;
+}
+
+// 同步所有统计数据
+message PlayerStatSyncData
+{
+    map<int32, StatItem>   Data = 1;
+}

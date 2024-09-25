@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package="./go;pb";
+package pb;
+
+
+// 玩家选择充值档位
+message PlayerRechargeReq
+{
+    int64 RechargeId = 1;               // 充值档位Id
+}
+message PlayerRechargeRsp
+{
+    int64 RechargeId = 1;               // 充值档位Id
+}

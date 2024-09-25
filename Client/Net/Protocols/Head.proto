@@ -1,0 +1,73 @@
+syntax = "proto3";
+option go_package="./go;pb";
+package pb;
+
+// 解锁头像
+message PlayerBuyHeadReq
+{
+    int64 HeadId = 1;                   // 头像Id
+}
+message PlayerBuyHeadRsp
+{
+    int64 HeadId = 1;                   // 头像Id
+}
+
+// 选择使用头像
+message PlayerSelectHeadReq
+{
+    int64 HeadId = 1;                   // 头像Id,如果传0，则使用自定义头像Url
+}
+message PlayerSelectHeadRsp
+{
+    int64 HeadId = 1;                   // 头像Id
+}
+
+// 解锁头像框
+message PlayerBuyHeadFrameReq
+{
+    int64 HeadFrameId = 1;              // 头像框Id
+}
+message PlayerBuyHeadFrameRsp
+{
+    int64 HeadFrameId = 1;              // 头像框Id
+}
+
+// 解锁头像挂件
+message PlayerBuyHeadWidgetReq
+{
+    int64 HeadWidgetId = 1;              // 头像挂件Id
+}
+message PlayerBuyHeadWidgetRsp
+{
+    int64 HeadWidgetId = 1;              // 头像挂件Id
+}
+
+// 挂件节点信息
+message HeadWidgetNode
+{
+    int32 Angle = 1;                    // 角度位置
+    int64 HeadWidgetId = 2;             // 挂件Id
+}
+
+// 请求保存头像框，头像挂件数据
+message PlayerSaveHeadFrameWidgetDataReq
+{
+    int64 HeadFrameId = 1;              // 头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 2; // 头像挂件数据
+}
+message PlayerSaveHeadFrameWidgetDataRsp
+{
+    int64 HeadFrameId = 1;              // 头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 2; // 头像挂件数据
+}
+
+// 请求头像框，挂件数据
+message PlayerGetHeadDataReq
+{
+
+}
+message PlayerGetHeadDataRsp
+{
+    int64 HeadFrameId = 2;                      // 头像框Id
+    repeated HeadWidgetNode HeadWidgetList = 3; // 头像挂件数据
+}

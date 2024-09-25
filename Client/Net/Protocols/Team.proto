@@ -1,0 +1,513 @@
+syntax = "proto3";
+import "Lobby.proto";
+
+option go_package="./go;pb";
+package pb;
+
+enum REPLY_TYPE
+{
+    ACCEPT = 0;    // 同意
+    REJECT = 1;    // 拒绝
+}
+
+enum TEAM_MEMBER_STATUS
+{
+    BATTLE       = 0;    // 战斗中
+    READY        = 1;    // 准备
+    UNREADY      = 2;    // 未准备
+    OFFLINE      = 3;    // 离线
+    SETTLE       = 4;    // 结算中
+    MATCH        = 5;    // 匹配中
+    CONNECTING   = 6;    // 意外掉线
+}
+
+enum TEAM_SYNC_REASON
+{
+    SYNC_CREATE_TEAM       = 0;
+    SYNC_JOIN_TEAM         = 1;
+    SYNC_LEAVE_TEAM        = 2;
+    SYNC_SYNC_TEAM         = 3;
+    SYNC_TEAM_DISMISS      = 4;
+    SYNC_ON_LOGIN          = 5;
+    SYNC_SILENT_LEAVE      = 6;
+    SYNC_KICKED            = 7;
+    SYNC_LRU_REMOVE        = 8;
+    SYNC_ON_LOGOUT         = 9;     // 意外离线
+    SYNC_NORMAL_LOGOUT     = 10;    // 正常离线
+    SYNC_INVITE_LEAVE_TEAM = 11;    // 因为邀请而离队
+}
+
+enum TEAM_INCRE_SYNC_REASON
+{
+    INCRE_SYNC_LEAVE_TEAM             = 0;
+    INCRE_SYNC_ON_LOGOUT              = 1;    // 意外离线
+    INCRE_SYNC_NORMAL_LOGOUT          = 2;    // 正常离线
+    INCRE_SYNC_SILENT_LEAVE           = 3;
+    INCRE_SYNC_KICKED                 = 4;
+    INCRE_SYNC_LEADER_CHANGE          = 5;
+    INCRE_SYNC_STATUS_CHANGE          = 6;
+    INCRE_SYNC_MEMBER_NAME_CHANGE     = 7;
+    INCRE_SYNC_MODE_CHANGE            = 8;
+    INCRE_SYNC_INVITE_LIST_CHANGE     = 9;
+    INCRE_SYNC_APPLY_LIST_CHANGE      = 10;
+    INCRE_SYNC_MERGE_SEND_LIST_CHANGE = 11;
+    INCRE_SYNC_MERGE_REVC_LIST_CHANGE = 12;
+    INCRE_SYNC_REQUEST_LIST_DEL_ALL   = 13;
+    INCRE_SYNC_HERO_CHANGE            = 14;
+    INCRE_SYNC_WEAPON_CHANGE          = 15;
+    INCRE_SYNC_INVITE_LEAVE_TEAM      = 16;    // 因为邀请而离队
+}
+
+enum TEAM_SOURCE_TYPE               // 邀请/申请/合并队伍来源
+{
+    TEAM_SOURCE_TYPE_NONE           = 0;
+    CHAT_IN_WORLD                   = 202;      // 公共聊天频道(点击头像添加好友)
+    CHAT_IN_TEAM                    = 205;      // 组队聊天(点击头像添加好友)
+    LAYER_SETTLEMENT                = 206;      // 结算界面(点击头像添加好友)
+    FRIEND_BLACK_LIST               = 104;      // 黑名单
+    SCORE_HISTORY                   = 207;      // 历史战绩
+    COMMON_HEAD                     = 300;      // 个人信息
+    RECENT_VISITOR                  = 302;      // 最近访客
+    FRIEND_SEARCH_ID                = 101;      // 好友搜索
+    IN_TEAM_AS_OTAL_STRANGER        = 208;      // 组队中(同队陌生人且非同队好友的好友)
+    IN_TEAM_AS_FRIENDS_OF_FRIENDS   = 209;      // 组队中(同队陌生人且同队好友的好友)
+    LAYER_IN_TEAM_RECOMMONDATION1   = 210;      // 组队推荐界面1(好友页签)
+    LAYER_IN_TEAM_RECOMMONDATION2   = 211;      // 组队推荐界面2(推荐页签)
+}
+
+message InviteInfoMsg
+{
+    int32 GameplayId               = 1;    // 玩法Id
+    int32 LevelId                  = 2;    // 关卡Id
+    int32 View                     = 3;    // 视角
+    int32 TeamType                 = 4;    // 队伍类型
+    bool IsCrossPlatform           = 5;    // 是否跨平台匹配
+    int64 TeamId                   = 6;    // 队伍Id，后台赋值
+    TEAM_SOURCE_TYPE Source        = 7;    // 请求来源
+    map<int64, TeamMember> Members = 8;    // 成员信息，后台赋值
+    int64 LeaderId                 = 9;    // 队长，后台赋值
+    string ReferSourcePageId       = 10;    // 来源页面ID
+}
+
+message TeamMember
+{
+    int64 PlayerId            = 1;
+    string PlayerName         = 2;
+    int64 JoinTime            = 3;
+    TEAM_MEMBER_STATUS Status = 4;
+    int64 Addr                = 5;    // 成员所在Lobby地址
+    int64 HeroId              = 6;    // 玩家选择的先觉者
+    int64 HeroSkinId          = 7;    // 玩家选择的先觉者皮肤
+    int64 WeaponId            = 8;    // 玩家选择的武器
+    int64 WeaponSkinId        = 9;    // 玩家选择的武器皮肤
+    int32 PlatformId          = 10;
+    int64 HeadId              = 11;
+    repeated int64 HeroSkinPartList = 12; // 队友选择的皮肤部件Id
+    int32 DsGroupId             = 13;       // 玩家所在的DS           
+}
+
+// 邀请组队请求
+message TeamInviteReq
+{
+    int64 InviteeId          = 1;    // 被邀请者Id
+    string PlayerName        = 2;    // 被邀请者名字
+    InviteInfoMsg InviteInfo = 3;    // 邀请信息
+}
+
+// 邀请组队回包
+message TeamInviteRsp
+{
+    int64 InviteeId = 1;   // 被邀请者Id
+}
+
+// 通知被邀请者
+message TeamInviteSync
+{
+    int64 InviterId          = 1;    // 邀请者Id
+    InviteInfoMsg InviteInfo = 2;    // 邀请信息
+}
+
+// 被邀请者应答请求
+message TeamInviteReplyReq
+{
+    int64 InviterId  = 1;    // 邀请者Id
+    REPLY_TYPE Reply = 2;    // 应答结果
+    int64 TeamId     = 3;    // 队伍Id
+}
+
+// 被邀请者应答回包
+message TeamInviteReplyRsp
+{
+    int64 InviterId = 1;    // 邀请者Id
+    int64 TeamId    = 2;    // 队伍Id
+}
+
+// 通知邀请者对方应答
+message TeamInviteReplySync
+{
+    REPLY_TYPE Reply = 1;    // 应答结果
+    int64 InviteeId  = 2;    // 被邀请者Id
+}
+
+// 邀请组队取消请求
+message TeamInviteCancelReq
+{
+    int64 InviteeId = 1;    // 被邀请者Id
+}
+
+// 邀请组队取消回包
+message TeamInviteCancelRsp
+{
+    int64 InviteeId = 1;    // 被邀请者Id
+}
+
+// 邀请组队取消通知被邀请者
+message TeamInviteCancelSync
+{
+     int64 InviterId = 1;    // 邀请者Id
+     int64 TeamId    = 2;    // 队伍Id
+}
+
+message ApplyInfoMsg
+{
+    string PlayerName        = 1;    // 申请者名字，后台赋值
+    TEAM_SOURCE_TYPE Source  = 2;    // 请求来源
+    int64 TeamId             = 3;    // 申请入队的队伍Id
+    string ReferSourcePageId       = 10;    // 来源页面ID
+}
+
+// 申请入队请求
+message TeamApplyReq
+{
+    int64 RespondentId     = 1;    // 被申请者Id
+    ApplyInfoMsg ApplyInfo = 2;    // 申请信息
+}
+
+// 申请入队回包
+message TeamApplyRsp
+{
+    int64 RespondentId     = 1;    // 被申请者Id
+    ApplyInfoMsg ApplyInfo = 2;    // 申请信息
+}
+
+// 通知被申请者（队长）
+message TeamApplySync
+{
+    int64 ApplicantId      = 1;    // 申请者Id
+    ApplyInfoMsg ApplyInfo = 2;    // 申请信息
+}
+
+// 被申请者应答申请
+message TeamApplyReplyReq
+{
+    int64 ApplicantId =  1;    // 申请者Id
+    REPLY_TYPE Reply  =  2;    // 应答结果
+    int64 TeamId      =  3;    // 自己的队伍Id
+    bool IsCheckLeader = 4;    // 是否需要检查队长
+}
+
+// 被申请者应答回包
+message TeamApplyReplyRsp
+{
+    int64 ApplicantId  = 1;    // 申请者Id
+}
+
+// 申请入队结果返回给申请者
+message TeamApplyReplySync
+{
+    REPLY_TYPE Reply      = 1;    // 应答结果
+    int64 RespondentId    = 2;    // 被申请者Id
+    string RespondentName = 3;    // 被申请者名字（就是队长的）
+    int64 TeamId          = 4;    // 被申请者的TeamId
+}
+
+// 请求队伍信息
+message TeamInfoReq
+{
+}
+
+// 同步队伍信息
+message TeamInfoSync
+{
+    int64 LeaderId                   = 1;    // 队长
+    int32 GameplayId                 = 2;    // 玩法Id
+    int32 LevelId                    = 3;    // 关卡Id
+    int32 View                       = 4;    // 视角
+    int32 TeamType                   = 5;    // 队伍类型
+    bool IsCrossPlatform             = 6;    // 是否跨平台
+    int64 TeamId                     = 7;    // 队伍Id  没有队伍则TeamId为0
+    map<int64, TeamMember> Members   = 8;
+	TEAM_SYNC_REASON Reason          = 9;    // 同步原因
+    int32 PlayerCnt                  = 10;   // 队伍人数
+    int64 CreateTime                 = 11;   // 队伍创建时间
+    int64 TargetId                   = 12;   // 该队伍信息对应的PlayerId
+    map<int64, InviteListInfo> InviteList   = 13;    // 邀请列表全量信息
+    map<int64, ApplyListInfo> ApplyList     = 14;    // 申请列表全量信息
+    map<int64, MergeListInfo> MergeRecvList = 15;    // 接收合并列表全量信息
+    map<int64, MergeListInfo> MergeSendList = 16;    // 发出合并列表全量信息
+}
+
+// 请求队伍协议信息
+message UpdateTeamInfoReq
+{
+}
+
+// 请求队伍信息响应
+message UpdateTeamInfoRsp
+{
+    int64 LeaderId                   = 1;    // 队长
+    int32 GameplayId                 = 2;    // 玩法Id
+    int32 LevelId                    = 3;    // 关卡Id
+    int32 View                       = 4;    // 视角
+    int32 TeamType                   = 5;    // 队伍类型
+    bool IsCrossPlatform             = 6;    // 是否跨平台
+    int64 TeamId                     = 7;    // 队伍Id  没有队伍则TeamId为0
+    map<int64, TeamMember> Members   = 8;
+	TEAM_SYNC_REASON Reason          = 9;    // 同步原因
+    int32 PlayerCnt                  = 10;   // 队伍人数
+    int64 CreateTime                 = 11;   // 队伍创建时间
+    int64 TargetId                   = 12;   // 该队伍信息对应的PlayerId
+    map<int64, InviteListInfo> InviteList   = 13;    // 邀请列表全量信息
+    map<int64, ApplyListInfo> ApplyList     = 14;    // 申请列表全量信息
+    map<int64, MergeListInfo> MergeRecvList = 15;    // 接收合并列表全量信息
+    map<int64, MergeListInfo> MergeSendList = 16;    // 发出合并列表全量信息
+}
+
+
+// 增量同步队伍信息
+message TeamIncreInfoSync
+{
+    int64 TargetId                = 1;    // 变更对象，根据原因确定
+    int64 TeamId                  = 2;    // 队伍Id  没有队伍则TeamId为0
+    TeamMember Member             = 3;    // 对应变更对象
+	TEAM_INCRE_SYNC_REASON Reason = 4;    // 增量同步原因
+    InviteListInfo InviteList     = 5;    // 邀请列表增量信息
+    ApplyListInfo ApplyList       = 6;    // 申请列表增量信息
+    MergeListInfo MergeRecvList   = 7;    // 接收合并列表全量信息
+    MergeListInfo MergeSendList   = 8;    // 发出合并列表全量信息
+    int32 GameplayId              = 9;    // 玩法Id
+    int32 LevelId                 = 10;    // 关卡Id
+    int32 View                    = 11;    // 视角
+    int32 TeamType                = 12;    // 视角
+    bool IsCrossPlatform          = 13;    // 是否跨平台
+}
+
+message PlayerInfo
+{
+    int64 PlayerId    = 1;
+    string PlayerName = 2;
+}
+
+// 邀请列表信息
+message InviteListInfo
+{
+    int64 RequestTime  = 1;    // 发出请求时间
+    PlayerInfo Inviter = 2;    // 邀请者
+    PlayerInfo Invitee = 3;    // 被邀请者
+}
+
+// 申请列表信息
+message ApplyListInfo
+{
+    int64 RequestTime     = 1;    // 发出请求时间
+    PlayerInfo Applicant  = 2;    // 申请者
+    PlayerInfo Respondent = 3;    // 被申请者
+    int64 TeamId          = 4;
+}
+
+// 合并列表信息
+message MergeListInfo
+{
+    int64 RequestTime              = 1;    // 发出请求时间
+    PlayerInfo MergeSend           = 2;    // 合并发起方
+    int64 LeaderId                 = 3;    // 合并发起方LeaderId
+    int64 TeamId                   = 4;    // 合并发起方TeamId
+    map<int64, TeamMember> Members = 5;    // 合并发起方队伍成员
+}
+
+// 退出队伍请求
+message TeamQuitReq
+{
+}
+
+// 退出队伍回包
+message TeamQuitRsp
+{
+}
+
+// 踢出队伍请求
+message TeamKickReq
+{
+    int64 PlayerId = 1;    // 要踢玩家Id
+}
+
+// 踢出队伍回包
+message TeamKickRsp
+{
+    int64 PlayerId = 1;    // 要踢玩家Id
+}
+
+// 转移队长请求
+message TeamChangeLeaderReq
+{
+    int64 NewLeaderId = 1;    // 新队长Id
+}
+
+// 转移队长回包
+message TeamChangeLeaderRsp
+{
+}
+
+// 修改队伍模式
+message TeamChangeModeReq
+{
+    int32 GameplayId        = 1;    // 玩法Id
+    int32 LevelId           = 2;    // 关卡Id
+    int32 View              = 3;    // 视角
+    int32 TeamType          = 4;    // 队伍类型
+    bool IsCrossPlatform    = 5;    // 是否跨平台
+}
+
+// 修改队伍模式
+message TeamChangeModeRsp
+{
+    int32 GameplayId        = 1;    // 玩法Id
+    int32 LevelId           = 2;    // 关卡Id
+    int32 View              = 3;    // 视角
+    int32 TeamType          = 4;    // 队伍类型
+    bool IsCrossPlatform    = 5;    // 是否跨平台
+}
+
+// 根据PlayerList批量查询队伍信息请求
+message PlayerListTeamInfoReq
+{
+    repeated int64 PlayerList = 1;    // 玩家PlayerId列表，上限50个
+}
+
+// 根据PlayerList批量查询队伍信息回包
+message PlayerListTeamInfoRsp
+{
+    repeated int64 PlayerList = 1;    // 不存在TeamId的玩家PlayerId列表，上限50个
+}
+
+message MergeInfoMsg
+{
+    TEAM_SOURCE_TYPE Source        = 1;    // 请求来源
+    int64 TargetTeamId             = 2;    // 合并接收方的队伍Id
+    int64 SourceTeamId             = 3;    // 合并发送方的队伍Id，后台赋值
+    map<int64, TeamMember> Members = 4;    // 合并发方成员信息，后台赋值
+    int64 LeaderId                 = 5;    // 队长，后台赋值
+    int64 PlayerCnt                = 6;    // 合并发起方的队伍人数，后台赋值
+    string ReferSourcePageId       = 10;    // 来源页面ID
+}
+
+// 队伍合并请求
+message TeamMergeReq
+{
+    int64 MergeRecvId      = 1;    // 合并接收方Id
+    MergeInfoMsg MergeInfo = 2;    // 合并信息
+}
+
+// 队伍合并请求回包
+message TeamMergeRsp
+{
+    int64 MergeRecvId = 1;    // 合并接收方Id
+}
+
+// 通知合并接收方（队长）
+message TeamMergeSync
+{
+    int64 MergeSendId      = 1;    // 合并发起方Id
+    MergeInfoMsg MergeInfo = 2;    // 合并信息
+}
+
+// 合并接收方应答申请
+message TeamMergeReplyReq
+{
+    int64 MergeSendId  = 1;    // 合并发起方Id
+    REPLY_TYPE Reply   = 2;    // 应答结果
+    int64 TargetTeamId = 3;    // 合并接收方的队伍Id
+    int64 SourceTeamId = 4;    // 合并发送方的队伍Id
+    bool IsCheckLeader = 5;    // 是否校验队长
+}
+
+// 合并接收方应答回包
+message TeamMergeReplyRsp
+{
+    int64 MergeSendId = 1;    // 合并发起方Id
+}
+
+// 合并队伍结果返回给合并发起方
+message TeamMergeReplySync
+{
+    REPLY_TYPE Reply     = 1;    // 应答结果
+    int64 MergeRecvId    = 2;    // 合并接收方Id
+    string MergeRecvName = 3;    // 合并接收方名字（就是队长的）
+    int64 TeamId         = 4;    // 合并接收方队伍Id
+}
+
+message QueryTeamMsg
+{
+    int64 PlayerId = 1;    // 当前Team里的任一PlayerId
+    int64 TeamId   = 2;    // 队伍Id
+}
+
+// 根据TeamIdList查询多个队伍信息
+message QueryMultiTeamInfoReq
+{
+    repeated QueryTeamMsg QueryTeamList = 1;
+}
+
+message QueryMultiTeamInfoRsp
+{
+}
+
+// 改变队伍成员状态
+message TeamChangeMemberStatusReq
+{
+    TEAM_MEMBER_STATUS Status = 1;
+}
+
+message TeamChangeMemberStatusRsp
+{
+}
+
+// 通知被邀请者删除通知
+message TeamInviteNotifyDelSync
+{
+    int64 TeamId    = 1;    // 发出邀请方队伍Id
+    int64 InviteeId = 2;    // 被邀请者Id
+}
+
+// 通知服务器单人队发生变化
+message TeamSingleChangeNotifyReq
+{
+}
+
+message TeamSingleChangeNotifyRsp
+{
+}
+
+// 列表元素定义
+message RecommendTeammateInfo
+{
+    int64 PlayerId = 1;                             // 推荐组队队友PlayerId
+    string PlayerName = 2;                          // 推荐组队队友名字
+    PLAYER_STATE PlayerState = 3;                   // 玩家状态
+    RECOMMEND_TEAM_SOURCE RecommendSource = 4;      // 推荐来源
+}
+
+// 推荐列表请求
+message RecommendTeammateListReq
+{
+    int32 LastIndex = 1;       // 从第几页开始拉取
+    int32 PageCount = 2;       // 拉取的数量
+}
+
+// 推荐列表回复
+message RecommendTeammateListRsp
+{
+    repeated RecommendTeammateInfo RecommendTeammateList = 1; // 推荐列表
+    int32 PageCount = 2;                                      // 推荐个数
+    int32 LastIndex = 3;                                      // 该页最后一个元素的索引位置，用于分页
+}

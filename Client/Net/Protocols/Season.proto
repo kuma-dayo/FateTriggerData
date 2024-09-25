@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package="./go;pb";
+package pb;
+
+//赛季武器伤害数据请求
+message WeaponInjuryDataReq
+{
+    int32 SeasonId = 1;
+    int64 WeaponId = 2;
+}
+
+//赛季武器伤害回包
+message WeaponInjuryDataRsp
+{
+    int64 EliminationNum = 1;
+    int64 HitHeadsNum = 2;
+    int64 TotalInjury = 3;
+    int64 Duration = 4;
+}
